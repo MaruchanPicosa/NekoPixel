@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NekoPixel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='/'">NekoPixel</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar...">
+            {% if 'username' in session %}
+            <button class="post-btn" onclick="togglePostPopup()">Publicar</button>
+            {% endif %}
+        </div>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Iniciar Sesión">
+            <div id="dropdown-content" class="dropdown-content">
+                {% if 'username' in session %}
+                    <a href="{{ url_for('perfil') }}">Mi Perfil</a>
+                    <a href="{{ url_for('configuracion') }}">Configuración</a>
+                    <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Iniciar Sesión</a>
+                    <a href="{{ url_for('registro') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Popups para usuarios autenticados -->
+    {% if 'username' in session %}
+    <!-- Popup para crear publicación -->
+    <div id="postPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="togglePostPopup()">×</span>
+            <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data">
+                <textarea name="text" placeholder="¿Qué estás pensando?" rows="3"></textarea>
+                <input type="file" name="media" accept="image/*,video/*">
+                <input type="url" name="link" placeholder="Añadir un enlace">
+                <button type="submit" class="button">Publicar</button>
+            </form>
+        </div>
+    </div>
+
+    {% for post in posts %}
+        {% for comment in post.comments %}
+            {% if session['username'] == comment.username %}
+            <div id="editCommentPopup-{{ post['_id'] }}-{{ loop.index0 }}" class="popup">
+                <div class="popup-content">
+                    <span class="close" onclick="toggleEditCommentPopup('{{ post['_id'] }}', '{{ loop.index0 }}')">×</span>
+                    <form action="{{ url_for('edit_comment', post_id=post['_id'], comment_index=loop.index0) }}" method="POST">
+                        <textarea name="comment" rows="3">{{ comment.text }}</textarea>
+                        <button type="submit" class="button">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Popup para editar publicación -->
+    <div id="editPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="toggleEditPopup(null)">×</span>
+            <form id="editForm" method="POST" enctype="multipart/form-data">
+                <textarea name="text" id="editText" placeholder="¿Qué estás pensando?" rows="3"></textarea>
+                <input type="file" name="media" accept="image/*,video/*">
+                <p id="currentMedia"></p>
+                <input type="url" name="link" id="editLink" placeholder="Añadir un enlace">
+                <button type="submit" class="button">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup para crear comunidad -->
+    <div id="createCommunityPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="toggleCommunityPopup()">×</span>
+            <form action="{{ url_for('create_community') }}" method="POST" enctype="multipart/form-data">
+                <input type="text" name="name" placeholder="Nombre de la comunidad" required>
+                <input type="file" name="banner" accept="image/*" required>
+                <input type="text" name="tags" placeholder="Etiquetas (separadas por comas)">
+                <button type="submit" class="button">Crear Comunidad</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <main>
+        {% if 'username' in session %}
+            <h2>Bienvenido, {{ session['username'] }}!</h2>
+        {% else %}
+            <h2>Bienvenido a NekoPixel</h2>
+        {% endif %}
+
+        <section class="publicaciones">
+            {% for post in posts %}
+            <div class="publicacion">
+                <div class="post-header">
+                    <strong>{{ post.username }}</strong>
+                    <small>{{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <p>{{ post.text }}</p>
+                {% if post.media_data %}
+                    {% if post.media_data.filename.endswith(('.png', '.jpg', '.jpeg')) %}
+                        <img src="{{ url_for('serve_media', post_id=post['_id']) }}" alt="Media">
+                    {% elif post.media_data.filename.endswith('.mp4') %}
+                        <video controls><source src="{{ url_for('serve_media', post_id=post['_id']) }}" type="video/mp4"></video>
+                    {% endif %}
+                {% endif %}
+                {% if post.link %}
+                    <a href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+                {% endif %}
+                <div class="post-actions">
+                    <form action="{{ url_for('like_post', post_id=post['_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="action-btn">Like ({{ post.likes|length }})</button>
+                    </form>
+                    <button class="action-btn" onclick="toggleComments('{{ post['_id'] }}')">Comentar</button>
+                    {% if 'username' in session and post.username == session['username'] %}
+                        <button class="action-btn" onclick="toggleEditPopup('{{ post['_id'] }}', '{{ post.text|e }}', '{{ post.link or '' }}', '{{ post.media_data.filename if post.media_data else '' }}')">Editar</button>
+                        <form action="{{ url_for('delete_post', post_id=post['_id']) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="action-btn" onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');">Eliminar</button>
+                        </form>
+                    {% endif %}
+                </div>
+                <div id="comments-{{ post['_id'] }}" class="comments" style="display:none;">
+                    <form action="{{ url_for('comment_post', post_id=post['_id']) }}" method="POST">
+                        <input type="text" name="comment" placeholder="Escribe un comentario..." required>
+                        <button type="submit">Enviar</button>
+                    </form>
+                    {% if post.comments %}
+                        {% for comment in post.comments %}
+                            <div class="comment">
+                                <strong>{{ comment.username }}</strong>: {{ comment.text }}
+                                <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                {% if 'username' in session and session['username'] == comment.username %}
+                                <button class="edit-btn" onclick="toggleEditCommentPopup('{{ post['_id'] }}', '{{ loop.index0 }}')">Editar</button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No hay comentarios aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+        <aside class="sidebar-right">
+            <h3>Comunidades Recomendadas</h3>
+            {% if 'username' in session %}
+                <button class="create-community-btn" onclick="toggleCommunityPopup()">Crear una Comunidad</button>
+            {% endif %}
+            {% if communities %}
+                <ul>
+                    {% for community in communities %}
+                        <li>
+                            <a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a>
+                            <p>Etiquetas: {{ community.tags|join(', ') }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No hay comunidades aún.</p>
+            {% endif %}
+        </aside>
+    </main>
+
+    <footer>
+        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById("dropdown-content");
+            dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+        }
+
+        function togglePostPopup() {
+            var popup = document.getElementById("postPopup");
+            popup.style.display = popup.style.display === "block" ? "none" : "block";
+        }
+
+        function toggleComments(postId) {
+            var comments = document.getElementById("comments-" + postId);
+            if (comments) {
+                comments.style.display = comments.style.display === "block" ? "none" : "block";
+            } else {
+                console.error("No se encontró el elemento con ID: comments-" + postId);
+            }
+        }
+
+        function toggleEditPopup(postId, text, link, mediaFilename) {
+            var popup = document.getElementById("editPopup");
+            var form = document.getElementById("editForm");
+            var textArea = document.getElementById("editText");
+            var linkInput = document.getElementById("editLink");
+            var currentMedia = document.getElementById("currentMedia");
+
+            if (postId) {
+                form.action = "/edit/" + postId;
+                textArea.value = text;
+                linkInput.value = link;
+                if (mediaFilename) {
+                    currentMedia.innerHTML = "Archivo actual: " + mediaFilename + " (sube uno nuevo para reemplazarlo)";
+                } else {
+                    currentMedia.innerHTML = "No hay archivo actual";
+                }
+                popup.style.display = "block";
+            } else {
+                popup.style.display = "none";
+            }
+        }
+
+        function toggleCommunityPopup() {
+            var popup = document.getElementById("createCommunityPopup");
+            popup.style.display = popup.style.display === "block" ? "none" : "block";
+        }
+
+        function toggleEditCommentPopup(postId, commentIndex) {
+            var popup = document.getElementById("editCommentPopup-" + postId + "-" + commentIndex);
+            popup.style.display = popup.style.display === "block" ? "none" : "block";
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-profile img')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.style.display === "block") {
+                        openDropdown.style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+/* Estilos para el header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2c3e50;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Estilos para el logo */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+/* Estilos para la barra de búsqueda */
+.search-bar input {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    outline: none;
+    width: 200px;
+    background-color: #34495e;
+    color: white;
+}
+
+.search-bar input::placeholder {
+    color: #bdc3c7;
+}
+
+/* Estilos para el perfil del usuario */
+.user-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+/* Estilos para el menú desplegable */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    z-index: 1001;
+}
+
+.dropdown-content a {
+    color: #2c3e50;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.show {
+    display: block;
+}
+
+/* Estilos para el contenido principal (main) */
+main.perfil {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 250px);
+    padding: 40px;
+    margin-top: 70px;
+}
+
+/* Contenedor del perfil (más grande) */
+.perfil-contenedor {
+    text-align: center;
+    background-color: white;
+    padding: 30px; /* Aumentado de 20px a 30px */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px; /* Aumentado de 400px a 500px */
+    width: 100%;
+}
+
+/* Estilos para la foto de perfil */
+.foto-perfil img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Estilos para la información del usuario */
+.informacion-usuario h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    color: #2c3e50;
+}
+
+.informacion-usuario p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.informacion-usuario strong {
+    color: #2c3e50;
+}
+
+/* Estilos para el botón de eliminar cuenta */
+.eliminar-cuenta {
+    padding: 10px 20px;
+    background-color: #e74c3c; /* Rojo para indicar peligro */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.eliminar-cuenta:hover {
+    background-color: #c0392b; /* Rojo más oscuro al pasar el mouse */
+}
+
+/* Estilos para el footer */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+/* Main */
+main {
+    margin-top: 90px; /* Espacio para el header fijo */
+    margin-bottom: 80px; /* Espacio para el footer fijo */
+    padding: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.profile-header h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+/* Estilos para el contenedor de comunidades */
+.communities {
+    max-width: 500px;
+    margin: -100px auto;
+    margin-top: -70px;
+    margin-bottom: 80px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.communities h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.communities ul {
+    list-style: none;
+    padding: 0;
+}
+
+.communities li {
+    margin-bottom: 10px;
+}
+
+.communities li a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.communities li a:hover {
+    text-decoration: underline;
+}

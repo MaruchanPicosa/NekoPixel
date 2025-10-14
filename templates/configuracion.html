@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - NekoPixel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='configuracion.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='/'">NekoPixel</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar...">
+        </div>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Foto de perfil">
+            <div id="dropdown-content" class="dropdown-content">
+                <a href="{{ url_for('perfil') }}">Mi Perfil</a>
+                <a href="{{ url_for('configuracion') }}">Configuración</a>
+                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="configuracion">
+        <div class="perfil-contenedor">
+            <div class="foto-perfil">
+                <img src="{{ url_for('serve_profile_pic', username=user.username) }}" alt="Foto de perfil">
+            </div>
+            <h2>Configuración</h2>
+            <form action="{{ url_for('update_config') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Nombre de usuario:</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo electrónico:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Nueva contraseña:</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirmar nueva contraseña:</label>
+                    <input type="password" id="confirm-password" name="confirm-password">
+                </div>
+                <button type="submit" class="guardar-cambios">Guardar Cambios</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById("dropdown-content");
+            dropdownContent.classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-profile img')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

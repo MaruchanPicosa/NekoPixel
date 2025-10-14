@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - NekoPixel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='/'">NekoPixel</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar...">
+        </div>
+        <div class="user-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Foto de perfil">
+            <div id="dropdown-content" class="dropdown-content">
+                <a href="{{ url_for('perfil') }}">Mi Perfil</a>
+                <a href="{{ url_for('configuracion') }}">Configuración</a>
+                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="perfil">
+        <div class="perfil-contenedor">
+            <!-- Foto de perfil -->
+            <div class="foto-perfil">
+                <img src="{{ url_for('serve_profile_pic', username=user.username) }}" alt="Foto de perfil">
+                <form action="{{ url_for('update_profile_pic') }}" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="profile_pic" accept="image/*" onchange="this.form.submit()" style="margin-top: 10px;">
+                </form>
+            </div>
+
+            <!-- Información del usuario -->
+            <div class="informacion-usuario">
+                <h2>Mi Perfil</h2>
+                <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+                <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+                <p><strong>Miembro desde:</strong> {{ user.created_at.strftime('%B %Y') }}</p>
+                <p><strong>Publicaciones:</strong> {{ total_posts }}</p>
+                <p><strong>Likes recibidos:</strong> {{ total_likes }}</p>
+                <p><strong>Comentarios recibidos:</strong> {{ total_comments }}</p>
+                <form action="{{ url_for('delete_account') }}" method="POST" style="margin-top: 20px;">
+                    <button type="submit" class="eliminar-cuenta" onclick="return confirm('¿Estás seguro de eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.');">Eliminar Cuenta</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Apartado de comunidades -->
+    <section class="communities">
+        <h2>Comunidades Creadas</h2>
+        {% if created_communities %}
+            <ul>
+                {% for community in created_communities %}
+                    <li><a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No has creado ninguna comunidad aún.</p>
+        {% endif %}
+
+        <h2>Comunidades a las que estás unido</h2>
+        {% if joined_communities %}
+            <ul>
+                {% for community in joined_communities %}
+                    <li><a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No estás unido a ninguna comunidad aún.</p>
+        {% endif %}
+    </section>
+
+    <footer>
+        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById("dropdown-content");
+            dropdownContent.classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-profile img')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
