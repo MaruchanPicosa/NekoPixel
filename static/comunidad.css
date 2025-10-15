@@ -197,15 +197,6 @@ header {
     z-index: 1000;
 }
 
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.logo:hover {
-    opacity: 0.8;
-}
 
 .search-bar {
     flex-grow: 1;
@@ -259,18 +250,6 @@ main {
     min-height: calc(100vh - 120px); /* Asegura que el main ocupe al menos la altura de la pantalla menos header y footer */
 }
 
-/* Footer */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}
 
 /* Estilos para el popup */
 .popup {

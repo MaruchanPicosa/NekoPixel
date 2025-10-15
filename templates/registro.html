@@ -6,13 +6,19 @@
     <title>Registro - NekoPixel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='registro.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200..900;1,200..900&family=Tiny5&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/'">NekoPixel</div>
-    </header>
-
+        <div class="logo" onclick="window.location.href='/'">REGRESAR</div>
+    </header> 
     <div class="auth-container">
+        <div class="logo-wrapper">
+            <img src="{{ url_for('static', filename='img/logo.jpg') }}" class="logo-login-img" ></img>
+            <div class="logo-login" >NEKOPIXEL</div>
+        </div>
         <div class="auth-box">
             <h2>Registro</h2>
 

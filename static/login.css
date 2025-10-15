@@ -8,23 +8,38 @@ header {
     align-items: center;
 }
 
-.logo {
-    font-size: 24px;
+.logo-login {
+    font-family: "Tiny5", sans-serif;
+    font-style: normal;
+    font-size: 60px;
     font-weight: bold;
     cursor: pointer;
 }
 
-.logo:hover {
-    opacity: 0.8;
+.logo-login-img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 1px solid #000000;
+    margin-bottom: 10px; /* Espacio entre la imagen y el texto */
 }
+
 
 /* Estilos para el contenedor de autenticación */
 .auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 80%;
     height: 100vh;
+    gap: 200px; /* Añade un espacio horizontal entre el logo y la caja */
+}
+
+/*Contenedor para agrupar la imagen y texto del logo */
+.logo-wrapper {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
 }
 
 /* Estilos para la caja de autenticación */

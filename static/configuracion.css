@@ -14,12 +14,7 @@ header {
     z-index: 1000;
 }
 
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #ffffff;
-}
+
 
 .search-bar input {
     padding: 8px 12px;
@@ -151,14 +146,3 @@ main.configuracion {
     background-color: #1a252f;
 }
 
-footer {
-    background-color: #2c3e50;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}

@@ -15,6 +15,29 @@ body {
     cursor: pointer;
 }
 
+.logo {
+    font-family: "Tiny5", sans-serif;
+    font-style: normal;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.logo-img {
+width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Esto es lo que hace que sea un círculo */
+  border: 1px solid #000000;
+  cursor: pointer;
+  text-align: center;
+}
+
+
+
+.logo:hover {
+    opacity: 0.8;
+}
+
 .button:hover {
     background-color: #555;
 }
@@ -42,4 +65,17 @@ a:hover {
 .alert-error {
     background-color: #f8d7da;
     color: #721c24;
+}
+
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
 }
