@@ -4,150 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NekoPixel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200..900;1,200..900&family=Tiny5&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Tiny5&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
+
+    <div class="lightning-pillar left"></div>
+    <div class="lightning-pillar right"></div>
+
     <header>
-        <div class="logo" onclick="window.location.href='/'">NEKOPIXEL</div>
+        <a href="{{ url_for('index') }}" class="logo">NEKOPIXEL</a>
         <div class="search-bar">
             <input type="text" placeholder="Buscar...">
             {% if 'username' in session %}
-            <button class="post-btn" onclick="togglePostPopup()">Publicar</button>
             {% endif %}
         </div>
         <div class="user-profile" onclick="toggleDropdown()">
-            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Iniciar Sesión">
+            {# --- Inicio Bloque Avatar Condicional --- #}
+            {% if 'username' in session %}
+                {# Usuario Logueado #}
+                <div class="avatar-circle avatar-color-{{ (session['username']|length % 6) + 1 }}">
+                    {# Intenta cargar la imagen de perfil #}
+                    <img src="{{ url_for('serve_profile_pic', username=session.get('username')) }}" 
+                        alt="{{ session.get('username') }}" 
+                        {# Si falla, oculta img y activa la letra via data-letter #}
+                        onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ (session.get('username', '?')[0])|upper }}');">
+                    {# El CSS se encargará de mostrar la letra usando ::before y data-letter #}
+                </div>
+            {% else %}
+                {# Usuario Invitado (No Logueado) #}
+                <div class="avatar-circle avatar-guest"> {# Clase específica para invitado #}
+                    {# Mostrar icono directamente #}
+                    <i class="fas fa-user"></i> 
+                </div>
+            {% endif %}
+            {# --- Fin Bloque Avatar Condicional --- #}
+
             <div id="dropdown-content" class="dropdown-content">
                 {% if 'username' in session %}
-                    <a href="{{ url_for('perfil') }}">Mi Perfil</a>
-                    <a href="{{ url_for('configuracion') }}">Configuración</a>
-                    <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                    <a href="{{ url_for('perfil') }}"><i class="fas fa-user-circle"></i> Mi Perfil</a>
+                    <a href="{{ url_for('configuracion') }}"><i class="fas fa-cog"></i> Configuración</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}">Iniciar Sesión</a>
-                    <a href="{{ url_for('registro') }}">Registrarse</a>
+                    <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+                    <a href="{{ url_for('registro') }}"><i class="fas fa-user-plus"></i> Registrarse</a>
                 {% endif %}
             </div>
         </div>
     </header>
 
-    <!-- Popups para usuarios autenticados -->
     {% if 'username' in session %}
-    <!-- Popup para crear publicación -->
     <div id="postPopup" class="popup">
         <div class="popup-content">
-            <span class="close" onclick="togglePostPopup()">×</span>
-            <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data">
-                <textarea name="text" placeholder="¿Qué estás pensando?" rows="3"></textarea>
-                <input type="file" name="media" accept="image/*,video/*">
-                <input type="url" name="link" placeholder="Añadir un enlace">
-                <button type="submit" class="button">Publicar</button>
-            </form>
+            <div class="popup-header">
+                <h2>Crear Publicación</h2>
+                <span class="close" onclick="togglePopup('postPopup')">×</span>
+            </div>
+            <div class="popup-body">
+                <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data">
+                    <textarea name="text" placeholder="¿Qué estás pensando?" rows="4"></textarea>
+                    <input type="file" name="media" accept="image/*,video/*,image/webp">
+                    <input type="url" name="link" placeholder="Añadir un enlace (opcional)">
+                    <button type="submit" class="button button-primary">Publicar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="editPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Editar Publicación</h2>
+                <span class="close" onclick="toggleEditPopup(null)">×</span>
+            </div>
+            <div class="popup-body">
+                <form id="editForm" method="POST" enctype="multipart/form-data">
+                    <textarea name="text" id="editText" placeholder="¿Qué estás pensando?" rows="4"></textarea>
+                    <input type="file" name="media" accept="image/*,video/*,image/webp">
+                    <p id="currentMedia" style="font-size: 0.9rem; color: var(--nekopixel-text-medium);"></p>
+                    <input type="url" name="link" id="editLink" placeholder="Añadir un enlace">
+                    <button type="submit" class="button button-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="createCommunityPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Crear una Comunidad</h2>
+                <span class="close" onclick="togglePopup('createCommunityPopup')">×</span>
+            </div>
+            <div class="popup-body">
+                <form action="{{ url_for('create_community') }}" method="POST" enctype="multipart/form-data">
+                    <input type="text" name="name" placeholder="Nombre de la comunidad" required>
+                    <label>Sube un banner para la comunidad:</label>
+                    <input type="file" name="banner" accept="image/*,image/webp" required>
+                    <input type="text" name="tags" placeholder="Etiquetas (separadas por comas)">
+                    <button type="submit" class="button button-primary">Crear Comunidad</button>
+                </form>
+            </div>
         </div>
     </div>
 
     {% for post in posts %}
         {% for comment in post.comments %}
-            {% if session['username'] == comment.username %}
+            {% if 'username' in session and session['username'] == comment.username %}
             <div id="editCommentPopup-{{ post['_id'] }}-{{ loop.index0 }}" class="popup">
                 <div class="popup-content">
-                    <span class="close" onclick="toggleEditCommentPopup('{{ post['_id'] }}', '{{ loop.index0 }}')">×</span>
-                    <form action="{{ url_for('edit_comment', post_id=post['_id'], comment_index=loop.index0) }}" method="POST">
-                        <textarea name="comment" rows="3">{{ comment.text }}</textarea>
-                        <button type="submit" class="button">Guardar Cambios</button>
-                    </form>
+                    <div class="popup-header">
+                        <h2>Editar Comentario</h2>
+                        <span class="close" onclick="togglePopup('editCommentPopup-{{ post['_id'] }}-{{ loop.index0 }}')">×</span>
+                    </div>
+                    <div class="popup-body">
+                        <form action="{{ url_for('edit_comment', post_id=post['_id'], comment_index=loop.index0) }}" method="POST">
+                            <textarea name="comment" rows="3">{{ comment.text }}</textarea>
+                            <button type="submit" class="button button-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             {% endif %}
         {% endfor %}
     {% endfor %}
-
-    <!-- Popup para editar publicación -->
-    <div id="editPopup" class="popup">
-        <div class="popup-content">
-            <span class="close" onclick="toggleEditPopup(null)">×</span>
-            <form id="editForm" method="POST" enctype="multipart/form-data">
-                <textarea name="text" id="editText" placeholder="¿Qué estás pensando?" rows="3"></textarea>
-                <input type="file" name="media" accept="image/*,video/*">
-                <p id="currentMedia"></p>
-                <input type="url" name="link" id="editLink" placeholder="Añadir un enlace">
-                <button type="submit" class="button">Guardar Cambios</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Popup para crear comunidad -->
-    <div id="createCommunityPopup" class="popup">
-        <div class="popup-content">
-            <span class="close" onclick="toggleCommunityPopup()">×</span>
-            <form action="{{ url_for('create_community') }}" method="POST" enctype="multipart/form-data">
-                <input type="text" name="name" placeholder="Nombre de la comunidad" required>
-                <input type="file" name="banner" accept="image/*" required>
-                <input type="text" name="tags" placeholder="Etiquetas (separadas por comas)">
-                <button type="submit" class="button">Crear Comunidad</button>
-            </form>
-        </div>
-    </div>
     {% endif %}
 
+
     <main>
-        {% if 'username' in session %}
-            <h2>Bienvenido, {{ session['username'] }}!</h2>
-        {% else %}
-            <h2>Bienvenido a NekoPixel</h2>
-        {% endif %}
+        
+        <aside class="sidebar-left-nav">
+             <ul>
+                 <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+                 <li><a href="{{ url_for('explore') }}"><i class="fas fa-compass"></i> <span>Explorar</span></a></li>
+                 {% if 'username' in session %}
+                 <li><a href="{{ url_for('messages') }}"><i class="fas fa-envelope"></i> <span>Mensajes</span></a></li>
+                 <li><a href="{{ url_for('notifications') }}"><i class="fas fa-bell"></i> <span>Notificaciones</span></a></li>
+                 <li><a href="{{ url_for('perfil') }}"><i class="fas fa-user"></i> <span>Perfil</span></a></li>
+                 <li><a href="{{ url_for('configuracion') }}"><i class="fas fa-cog"></i> <span>Ajustes</span></a></li>
+                 <li><a href="#" onclick="togglePopup('postPopup')" style="color: var(--nekopixel-button-primary);"><i class="fas fa-plus-square"></i> <span>Crear Post</span></a></li>
+                 {% else %}
+                 <li><a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> <span>Iniciar Sesión</span></a></li>
+                 <li><a href="{{ url_for('registro') }}"><i class="fas fa-user-plus"></i> <span>Registrarse</span></a></li>
+                 {% endif %}
+             </ul>
+        </aside>
 
         <section class="publicaciones">
             {% for post in posts %}
-            <div class="publicacion">
+            <div class="publicacion" id="post-{{ post['_id'] }}">
                 <div class="post-header">
-                    <strong>{{ post.username }}</strong>
+                    <div class="post-author-info"> 
+                        <div class="avatar-circle avatar-color-{{ (post.username|length % 6) + 1 }}">
+                            <img src="{{ url_for('serve_profile_pic', username=post.username) }}" 
+                                 alt="{{ post.username }}"
+                                 onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ post.username[0]|upper }}');">
+                        </div>
+                        <div>
+                            <strong>{{ post.username }}</strong>
+                        </div>
+                    </div>
                     <small>{{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    <small class="post-data-timestamp" style="display:none;">{{ post.timestamp.isoformat() }}</small> </div>
+                
+                <div class="post-text-content" onclick="openPostModal('{{ post['_id'] }}')">
+                    <p>{{ post.text }}</p>
                 </div>
-                <p>{{ post.text }}</p>
+
                 {% if post.media_data %}
-                    {% if post.media_data.filename.endswith(('.png', '.jpg', '.jpeg')) %}
-                        <img src="{{ url_for('serve_media', post_id=post['_id']) }}" alt="Media">
-                    {% elif post.media_data.filename.endswith('.mp4') %}
-                        <video controls><source src="{{ url_for('serve_media', post_id=post['_id']) }}" type="video/mp4"></video>
-                    {% endif %}
+                    <div class="post-media-container" onclick="openPostModal('{{ post['_id'] }}')">
+                        {% if post.media_data.content_type.startswith('image/') %}
+                            <img src="{{ url_for('serve_media', post_id=post['_id']) }}" alt="Media">
+                        {% elif post.media_data.content_type.startswith('video/') %}
+                            <video muted loop autoplay playsinline> <source src="{{ url_for('serve_media', post_id=post['_id']) }}" type="{{ post.media_data.content_type }}">
+                            </video>
+                        {% endif %}
+                    </div>
                 {% endif %}
+                
                 {% if post.link %}
-                    <a href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+                    <a href="{{ post.link }}" target="_blank" style="color: var(--nekopixel-border-neon-blue); text-decoration: none; word-break: break-all; margin-top: 10px; display: inline-block;">{{ post.link }}</a>
                 {% endif %}
+
                 <div class="post-actions">
                     <form action="{{ url_for('like_post', post_id=post['_id']) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="action-btn">Like ({{ post.likes|length }})</button>
+                        <button type="submit" class="action-btn"><i class="fas fa-heart"></i> Like ({{ post.likes|length }})</button>
                     </form>
-                    <button class="action-btn" onclick="toggleComments('{{ post['_id'] }}')">Comentar</button>
+                    <button class="action-btn" onclick="toggleComments('{{ post['_id'] }}')"><i class="fas fa-comment"></i> Comentar</button>
                     {% if 'username' in session and post.username == session['username'] %}
-                        <button class="action-btn" onclick="toggleEditPopup('{{ post['_id'] }}', '{{ post.text|e }}', '{{ post.link or '' }}', '{{ post.media_data.filename if post.media_data else '' }}')">Editar</button>
+                        <button class="action-btn" onclick="toggleEditPopup('{{ post['_id'] }}', '{{ post.text|e }}', '{{ post.link or '' }}', '{{ post.media_data.filename if post.media_data else '' }}')"><i class="fas fa-edit"></i> Editar</button>
                         <form action="{{ url_for('delete_post', post_id=post['_id']) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="action-btn" onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');">Eliminar</button>
+                            <button type="submit" class="action-btn" onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');"><i class="fas fa-trash"></i> Eliminar</button>
                         </form>
                     {% endif %}
                 </div>
+
                 <div id="comments-{{ post['_id'] }}" class="comments" style="display:none;">
                     <form action="{{ url_for('comment_post', post_id=post['_id']) }}" method="POST">
                         <input type="text" name="comment" placeholder="Escribe un comentario..." required>
-                        <button type="submit">Enviar</button>
+                        <button type="submit" class="button button-primary">Enviar</button>
                     </form>
                     {% if post.comments %}
                         {% for comment in post.comments %}
                             <div class="comment">
-                                <strong>{{ comment.username }}</strong>: {{ comment.text }}
-                                <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                <div> <strong>{{ comment.username }}</strong> {{ comment.text }}
+                                    <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
                                 {% if 'username' in session and session['username'] == comment.username %}
-                                <button class="edit-btn" onclick="toggleEditCommentPopup('{{ post['_id'] }}', '{{ loop.index0 }}')">Editar</button>
+                                <button class="edit-btn button button-secondary" 
+                                        onclick="togglePopup('editCommentPopup-{{ post['_id'] }}-{{ loop.index0 }}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 {% endif %}
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p>No hay comentarios aún.</p>
+                        <p style="color: var(--nekopixel-text-medium);">No hay comentarios aún.</p>
                     {% endif %}
                 </div>
             </div>
@@ -155,91 +231,304 @@
         </section>
 
         <aside class="sidebar-right">
-            <h3>Comunidades Recomendadas</h3>
+            <h3>Descubrir Comunidades <i class="fas fa-cog"></i></h3>
+            <div class="search-community-bar">
+                <input type="text" placeholder="Buscar...">
+            </div>
+
             {% if 'username' in session %}
-                <button class="create-community-btn" onclick="toggleCommunityPopup()">Crear una Comunidad</button>
+                <button class="create-community-btn button button-primary" onclick="togglePopup('createCommunityPopup')">Crear una Comunidad</button>
             {% endif %}
+
             {% if communities %}
-                <ul>
+                <ul class="community-list">
                     {% for community in communities %}
                         <li>
-                            <a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a>
-                            <p>Etiquetas: {{ community.tags|join(', ') }}</p>
+                            <a href="{{ url_for('community', community_id=community['_id']) }}" class="community-card">
+                                <div class="community-banner-thumbnail avatar-color-{{ (community.name|length % 6) + 1 }}">
+                                    <img src="{{ url_for('serve_community_banner', community_id=community['_id']) }}" 
+                                         alt="Banner de {{ community.name }}"
+                                         onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ community.name[0]|upper }}');">
+                                </div>
+                                <div class="community-info">
+                                    <strong>{{ community.name }}</strong>
+                                    <small>Etiquetas: {{ community.tags|join(', ') }}</small>
+                                </div>
+                            </a>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No hay comunidades aún.</p>
+                <p style="color: var(--nekopixel-text-medium);">No hay Comunidades aún.</p>
             {% endif %}
         </aside>
 
     </main>
+
     <footer>
         <p>&copy; 2024 NekoPixel. Todos los derechos reservados.</p>
+        <a href="{{ url_for('index') }}" class="footer-icon"><i class="fas fa-home"></i></a>
+        <a href="{{ url_for('explore') }}" class="footer-icon"><i class="fas fa-compass"></i></a>
+        <a href="#" onclick="togglePopup('postPopup')" class="footer-icon"><i class="fas fa-plus-square"></i></a>
+        <a href="{{ url_for('notifications') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-bell"></i></a>
+        <a href="{{ url_for('perfil') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-user"></i></a>
     </footer>
+
+    <div id="postModal" class="popup">
+        <div class="modal-wrapper">
+            <span class="close" onclick="closePostModal()">×</span>
+            <div class="modal-post-container" id="modal-post-media" onclick="toggleZoom(event)"></div>
+            <div class="modal-sidebar">
+                <div id="modal-post-header"></div>
+                <div id="modal-post-body"></div>
+                <div id="modal-post-actions"></div>
+                <div id="modal-post-comments">
+                     <h3>Comentarios</h3>
+                     <div id="modal-comments-list"></div>
+                     <form id="modalCommentForm" method="POST"> 
+                         <input type="text" name="comment" placeholder="Escribe un comentario..." required>
+                         <button type="submit" class="button button-primary">Enviar</button>
+                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleDropdown() {
+        // --- Funciones toggle* ACTUALIZADAS para usar clase 'active' ---
+         function toggleDropdown() {
             var dropdownContent = document.getElementById("dropdown-content");
             dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
         }
 
-        function togglePostPopup() {
-            var popup = document.getElementById("postPopup");
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-        }
-
-        function toggleComments(postId) {
-            var comments = document.getElementById("comments-" + postId);
-            if (comments) {
-                comments.style.display = comments.style.display === "block" ? "none" : "block";
+        function togglePopup(popupId) {
+            var popup = document.getElementById(popupId);
+            if (popup) {
+                // Si es el modal de post, preparamos el cierre limpiando el zoom
+                if (popupId === 'postModal' && popup.classList.contains('active')) {
+                    resetZoomOnClose(); // Llama a resetear ANTES de ocultar
+                }
+                popup.classList.toggle("active");
+                // Prevenir scroll del body cuando un popup está activo (excepto el modal de post que ya tiene overflow)
+                if (popupId !== 'postModal' && popup.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                     // Solo restaura si no hay OTRO popup activo
+                     if (!document.querySelector('.popup.active:not(#postModal)')) {
+                          document.body.style.overflow = 'auto';
+                     }
+                }
             } else {
-                console.error("No se encontró el elemento con ID: comments-" + postId);
+                console.error("Popup con ID:", popupId, "no encontrado.");
             }
         }
+
+        function closePopup(popupId) { // Función explícita para cerrar
+             var popup = document.getElementById(popupId);
+             if(popup && popup.classList.contains('active')) {
+                 if (popupId === 'postModal') {
+                     resetZoomOnClose();
+                 }
+                 popup.classList.remove('active');
+                 // Restaurar scroll del body si no quedan otros popups activos
+                 if (!document.querySelector('.popup.active:not(#postModal)')) {
+                    document.body.style.overflow = 'auto';
+                 }
+             }
+        }
+
+        // --- ¡NUEVA! Función Específica para Editar Comentario ---
+        // (Llamada desde el botón Editar en el comentario)
+        // No necesita datos extras porque el popup ya tiene la URL correcta
+        function toggleEditCommentPopup(postId, commentIndex) {
+            togglePopup(`editCommentPopup${postId}-${commentIndex}`);
+        }
+
+
+        // Funciones específicas que llaman a togglePopup o closePopup
+        // function togglePostPopup() { togglePopup('postPopup'); } // Llamada directa desde el botón ahora
+        // function toggleCommunityPopup() { togglePopup('createCommunityPopup'); } // Llamada directa
+        function closePostModal() { 
+            closePopup('postModal'); 
+            // Limpiar contenido DESPUÉS de la transición
+            setTimeout(() => {
+                document.getElementById('modal-post-media').innerHTML = '';
+                document.getElementById('modal-post-header').innerHTML = '';
+                document.getElementById('modal-post-body').innerHTML = '';
+                document.getElementById('modal-post-actions').innerHTML = '';
+                // No limpiar modal-post-comments entero, solo la lista
+                var commentList = document.getElementById('modal-comments-list');
+                if(commentList) commentList.innerHTML = ''; 
+                var video = document.querySelector('#postModal video'); 
+                if (video) video.pause();
+            }, 300); 
+        } 
 
         function toggleEditPopup(postId, text, link, mediaFilename) {
             var popup = document.getElementById("editPopup");
-            var form = document.getElementById("editForm");
-            var textArea = document.getElementById("editText");
-            var linkInput = document.getElementById("editLink");
-            var currentMedia = document.getElementById("currentMedia");
-
+            if (!popup) return;
             if (postId) {
-                form.action = "/edit/" + postId;
+                var form = document.getElementById("editForm");
+                var textArea = document.getElementById("editText");
+                var linkInput = document.getElementById("editLink");
+                var currentMedia = document.getElementById("currentMedia");
+                form.action = "{{ url_for('edit_post', post_id='PID') }}".replace('PID', postId); // URL dinámica
                 textArea.value = text;
                 linkInput.value = link;
-                if (mediaFilename) {
-                    currentMedia.innerHTML = "Archivo actual: " + mediaFilename + " (sube uno nuevo para reemplazarlo)";
-                } else {
-                    currentMedia.innerHTML = "No hay archivo actual";
-                }
-                popup.style.display = "block";
+                currentMedia.innerHTML = mediaFilename ? `Archivo actual: ${mediaFilename} (sube uno nuevo para reemplazarlo)` : "No hay archivo actual";
+                togglePopup('editPopup'); // Mostrar con la función general
             } else {
-                popup.style.display = "none";
+                 closePopup('editPopup'); // Ocultar con la función general
             }
         }
+        
+        // function toggleEditCommentPopup(postId, commentIndex) { // Llamada directa ahora
+        //     var popupId = `editCommentPopup-${postId}-${commentIndex}`;
+        //     togglePopup(popupId);
+        // }
 
-        function toggleCommunityPopup() {
-            var popup = document.getElementById("createCommunityPopup");
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
+        function toggleComments(postId) { // Sigue usando display por simplicidad
+            var comments = document.getElementById("comments-" + postId);
+            if (comments) {
+                comments.style.display = comments.style.display === "block" ? "none" : "block";
+            }
         }
-
-        function toggleEditCommentPopup(postId, commentIndex) {
-            var popup = document.getElementById("editCommentPopup-" + postId + "-" + commentIndex);
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.user-profile img')) {
+        
+        // Cierre global de dropdown
+        window.addEventListener('click', function(event) { // Usar addEventListener
+            if (!event.target.closest('.user-profile')) { 
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.style.display === "block") {
-                        openDropdown.style.display = "none";
-                    }
+                    dropdowns[i].style.display = "none";
                 }
+            }
+            // Cierre global de popups pequeños si se hace clic fuera del contenido
+             if (event.target.classList.contains('popup') && !event.target.id.includes('postModal')) {
+                 closePopup(event.target.id);
+             }
+        });
+
+        // --- FUNCIONES DEL MODAL DE PUBLICACIÓN ---
+
+        function openPostModal(postId) {
+            var originalPost = document.getElementById('post-' + postId);
+            if (!originalPost) return;
+
+            // --- Clonar Media ---
+            var mediaContainer = document.getElementById('modal-post-media');
+            var originalMediaDiv = originalPost.querySelector('.post-media-container');
+            var originalTextDiv = originalPost.querySelector('.post-text-content');
+            mediaContainer.innerHTML = ''; 
+            if (originalMediaDiv) {
+                // Clonar el contenido, no el contenedor, para evitar doble listener de zoom
+                mediaContainer.innerHTML = originalMediaDiv.innerHTML; 
+                var video = mediaContainer.querySelector('video');
+                if (video) { video.muted = false; video.controls = true; }
+            } else if (originalTextDiv) {
+                mediaContainer.innerHTML = `<div class="modal-text-only">${originalTextDiv.innerHTML}</div>`;
+            }
+
+            // --- Clonar Header ---
+            var headerContainer = document.getElementById('modal-post-header');
+            var authorInfo = originalPost.querySelector('.post-author-info').cloneNode(true);
+            var timestampInfo = originalPost.querySelector('.post-header > small:not(.post-data-timestamp)').cloneNode(true); 
+            headerContainer.innerHTML = ''; 
+            headerContainer.appendChild(authorInfo);
+            headerContainer.appendChild(timestampInfo);
+            var img = headerContainer.querySelector('img'); 
+            if (img && img.onerror) { var src = img.src; img.src = ''; img.src = src; }
+
+            // --- Clonar Texto ---
+            var bodyContainer = document.getElementById('modal-post-body');
+            var originalLink = originalPost.querySelector('a[target="_blank"]');
+            var pText = originalPost.querySelector('.post-text-content p');
+            bodyContainer.innerHTML = pText ? pText.innerHTML : ''; 
+            if (originalLink) { bodyContainer.appendChild(originalLink.cloneNode(true)); }
+            if (originalMediaDiv && originalTextDiv) { // Ocultar texto grande si hay media
+                 var textInMedia = mediaContainer.querySelector('.modal-text-only');
+                 if(textInMedia) textInMedia.style.display = 'none';
+            }
+
+
+            // --- Clonar Acciones ---
+            var actionsContainer = document.getElementById('modal-post-actions');
+            var originalActions = originalPost.querySelector('.post-actions').cloneNode(true);
+             // Limpiar listeners antiguos si es necesario (más avanzado)
+             actionsContainer.innerHTML = ''; // Limpiar antes de añadir
+             // Re-añadir elementos uno por uno o usar innerHTML y re-asignar listeners si es complejo
+             actionsContainer.innerHTML = originalActions.innerHTML;
+             // Re-asignar listener para botón comentar si es necesario (si no usa form submit)
+             // var modalCommentBtn = actionsContainer.querySelector('button[onclick^="toggleComments"]');
+             // if(modalCommentBtn) modalCommentBtn.onclick = () => { /* lógica modal */ };
+
+            // --- Clonar SOLO LA LISTA de Comentarios ---
+            var commentsListContainer = document.getElementById('modal-comments-list');
+            var originalCommentsDiv = originalPost.querySelector('.comments');
+            var commentListHTML = ''; 
+            if (originalCommentsDiv) {
+                var originalCommentNodes = originalCommentsDiv.querySelectorAll('.comment');
+                originalCommentNodes.forEach(commentNode => { commentListHTML += commentNode.outerHTML; });
+                if (!originalCommentNodes.length) {
+                     var noCommentsP = originalCommentsDiv.querySelector('p');
+                     if (noCommentsP) commentListHTML = noCommentsP.outerHTML;
+                }
+            } else {
+                commentListHTML = '<p style="color: var(--nekopixel-text-medium);">No hay comentarios aún.</p>';
+            }
+            commentsListContainer.innerHTML = commentListHTML;
+
+            // Actualizar el 'action' del formulario del modal
+            var modalForm = document.getElementById('modalCommentForm');
+            var originalForm = originalCommentsDiv ? originalCommentsDiv.querySelector('form') : null;
+            if (modalForm && originalForm) {
+                modalForm.action = originalForm.action; 
+            } else if (modalForm) {
+                 modalForm.action = "#"; // Acción por defecto o error
+                 console.error("No se pudo encontrar el formulario original para copiar la acción.");
+            }
+
+            // Mostrar el modal
+            togglePopup('postModal'); 
+        }
+        // Función para resetear zoom (llamada desde closePostModal)
+        function resetZoomOnClose() {
+             var container = document.getElementById('modal-post-media');
+             if (container.classList.contains('zoomed-in')) { // Solo si estaba zoomeado
+                 var media = container.querySelector('img') || container.querySelector('video');
+                 if (media) {
+                     media.style.transform = 'scale(1)';
+                     media.style.transformOrigin = 'center center';
+                 }
+                 container.classList.remove('zoomed-in');
+             }
+        }
+
+        // Función de Zoom (sin cambios)
+        function toggleZoom(event) {
+            var container = document.getElementById('modal-post-media');
+            // Evitar zoom si se hace clic en controles de video
+            if (event.target.tagName === 'VIDEO' && event.target.controls) {
+                 var rect = event.target.getBoundingClientRect();
+                 if (event.clientY > (rect.bottom - 40)) { return; }
+            }
+
+            var media = container.querySelector('img') || container.querySelector('video');
+            if (!media) return; 
+
+            if (container.classList.contains('zoomed-in')) {
+                media.style.transform = 'scale(1)';
+                media.style.transformOrigin = 'center center';
+                container.classList.remove('zoomed-in');
+            } else {
+                var rect = container.getBoundingClientRect();
+                var x = event.clientX - rect.left;
+                var y = event.clientY - rect.top;
+                media.style.transformOrigin = `${x}px ${y}px`;
+                media.style.transform = 'scale(2.5)';
+                container.classList.add('zoomed-in');
             }
         }
     </script>
+
 </body>
 </html>

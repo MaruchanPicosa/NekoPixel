@@ -3,100 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil - NekoPixel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
+    <title>{{ user.username }} - NekoPixel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200..900;1,200..900&family=Tiny5&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Tiny5&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/'">NEKOPIXEL</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Buscar...">
-        </div>
-        <div class="user-profile" onclick="toggleDropdown()">
-            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Foto de perfil">
-            <div id="dropdown-content" class="dropdown-content">
-                <a href="{{ url_for('perfil') }}">Mi Perfil</a>
-                <a href="{{ url_for('configuracion') }}">Configuración</a>
-                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
-            </div>
-        </div>
-    </header>
+         <a href="{{ url_for('index') }}" class="logo">NEKOPIXEL</a>
+         <div class="search-bar">
+             <input type="text" placeholder="Buscar...">
+         </div>
+         <div class="user-profile" onclick="toggleDropdown()">
+             <div class="avatar-circle avatar-color-{{ (session['username']|length % 6) + 1 if 'username' in session else '1' }}">
+                 <img src="{{ url_for('serve_profile_pic', username=session.get('username')) }}" 
+                      alt="{{ session.get('username', 'Invitado') }}" 
+                      onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ (session.get('username', 'N')[0])|upper }}');">
+             </div>
+             <div id="dropdown-content" class="dropdown-content">
+                 {% if 'username' in session %}
+                     <a href="{{ url_for('perfil') }}"><i class="fas fa-user-circle"></i> Mi Perfil</a>
+                     <a href="{{ url_for('configuracion') }}"><i class="fas fa-cog"></i> Configuración</a>
+                     <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                 {% else %}
+                     <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+                     <a href="{{ url_for('registro') }}"><i class="fas fa-user-plus"></i> Registrarse</a>
+                 {% endif %}
+             </div>
+         </div>
+     </header>
 
-    <main class="perfil">
-        <div class="perfil-contenedor">
-            <!-- Foto de perfil -->
-            <div class="foto-perfil">
-                <img src="{{ url_for('serve_profile_pic', username=user.username) }}" alt="Foto de perfil">
-                <form action="{{ url_for('update_profile_pic') }}" method="POST" enctype="multipart/form-data">
-                    <input type="file" name="profile_pic" accept="image/*" onchange="this.form.submit()" style="margin-top: 10px;">
-                </form>
-            </div>
+    <main class="perfil-page">
+        <section class="profile-banner" style="background-image: url('{{ url_for('serve_profile_banner', username=user.username) }}');"> 
+             <label for="banner_pic_input" class="change-banner-button" title="Cambiar banner">
+                 <i class="fas fa-image"></i> Cambiar Banner
+             </label>
+             <form action="{{ url_for('update_profile_banner') }}" method="POST" enctype="multipart/form-data" id="bannerPicForm" style="display: none;">
+                 <input type="file" name="banner_pic" id="banner_pic_input" accept="image/*,image/webp" onchange="document.getElementById('bannerPicForm').submit();">
+             </form>
+        </section>
 
-            <!-- Información del usuario -->
-            <div class="informacion-usuario">
-                <h2>Mi Perfil</h2>
-                <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
-                <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
-                <p><strong>Miembro desde:</strong> {{ user.created_at.strftime('%B %Y') }}</p>
-                <p><strong>Publicaciones:</strong> {{ total_posts }}</p>
-                <p><strong>Likes recibidos:</strong> {{ total_likes }}</p>
-                <p><strong>Comentarios recibidos:</strong> {{ total_comments }}</p>
-                <form action="{{ url_for('delete_account') }}" method="POST" style="margin-top: 20px;">
-                    <button type="submit" class="eliminar-cuenta" onclick="return confirm('¿Estás seguro de eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.');">Eliminar Cuenta</button>
-                </form>
-            </div>
-        </div>
-    </main>
+        <div class="profile-content-wrapper">
 
-    <!-- Apartado de comunidades -->
-    <section class="communities">
-        <h2>Comunidades Creadas</h2>
-        {% if created_communities %}
-            <ul>
-                {% for community in created_communities %}
-                    <li><a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No has creado ninguna comunidad aún.</p>
-        {% endif %}
+            <section class="profile-header-card">
+                <div class="profile-avatar-container">
+                    <label for="profile_pic_input" class="avatar-circle avatar-color-{{ (user.username|length % 6) + 1 }}">
+                         <img src="{{ url_for('serve_profile_pic', username=user.username) }}" 
+                              alt="Foto de perfil de {{ user.username }}"
+                              onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ user.username[0]|upper }}');">
+                     </label>
+                     <label for="profile_pic_input" class="change-pic-button" title="Cambiar foto de perfil">
+                         <i class="fas fa-camera"></i>
+                     </label>
+                     <form action="{{ url_for('update_profile_pic') }}" method="POST" enctype="multipart/form-data" id="profilePicForm" style="display: none;">
+                        <input type="file" name="profile_pic" id="profile_pic_input" accept="image/*,image/webp" onchange="document.getElementById('profilePicForm').submit();">
+                     </form>
+                </div>
+                <div class="profile-user-info">
+                    <h2>{{ user.username }}</h2>
+                    <p class="user-email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                </div>
+                <div class="profile-actions">
+                    <a href="{{ url_for('configuracion') }}" class="button button-secondary">
+                        <i class="fas fa-user-edit"></i> Editar Perfil
+                    </a>
+                </div>
+            </section>
 
-        <h2>Comunidades a las que estás unido</h2>
-        {% if joined_communities %}
-            <ul>
-                {% for community in joined_communities %}
-                    <li><a href="{{ url_for('community', community_id=community['_id']) }}">{{ community.name }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No estás unido a ninguna comunidad aún.</p>
-        {% endif %}
-    </section>
+            <div class="profile-details-grid">
+                <section class="profile-card-section profile-stats-card">
+                    <h3><i class="fas fa-chart-line"></i> Estadísticas</h3>
+                    <ul class="profile-stats-list">
+                        <li><strong>Miembro desde:</strong> <span>{{ user.created_at.strftime('%B %Y') if user.created_at else 'N/A' }}</span></li>
+                        <li><strong>Publicaciones:</strong> <span>{{ total_posts }}</span></li>
+                        <li><strong>Likes Recibidos:</strong> <span>{{ total_likes }}</span></li> 
+                        <li><strong>Comentarios Recibidos:</strong> <span>{{ total_comments }}</span></li>
+                    </ul>
+                </section>
+
+                <section class="profile-card-section communities-section">
+                    <h2><i class="fas fa-crown"></i> Comunidades Creados</h2>
+                    {% if created_communities %}
+                        <ul class="communities-list">
+                            {% for community in created_communities %}
+                                <li>
+                                    <a href="{{ url_for('community', community_id=community['_id']) }}">
+                                        <div class="community-list-banner avatar-color-{{ (community.name|length % 6) + 1 }}">
+                                             <img src="{{ url_for('serve_community_banner', community_id=community['_id']) }}" 
+                                                  alt="Banner de {{ community.name }}"
+                                                  onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ community.name[0]|upper }}');">
+                                         </div>
+                                        <span>{{ community.name }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="no-communities">No has creado ningúna Comunidad aún.</p>
+                    {% endif %}
+                </section>
+                
+                <section class="profile-card-section communities-section">
+                     <h2><i class="fas fa-users"></i> Comunidades Unidas</h2>
+                    {% if joined_communities %}
+                         <ul class="communities-list">
+                            {% for community in joined_communities %}
+                                 <li>
+                                     <a href="{{ url_for('community', community_id=community['_id']) }}">
+                                         <div class="community-list-banner avatar-color-{{ (community.name|length % 6) + 1 }}">
+                                              <img src="{{ url_for('serve_community_banner', community_id=community['_id']) }}" 
+                                                   alt="Banner de {{ community.name }}"
+                                                   onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ community.name[0]|upper }}');">
+                                          </div>
+                                         <span>{{ community.name }}</span>
+                                     </a>
+                                 </li>
+                             {% endfor %}
+                         </ul>
+                    {% else %}
+                         <p class="no-communities">No estás unido a ningúna comunidad aún.</p>
+                    {% endif %}
+                </section>
+            </div> <section class="delete-account-section">
+                 <h3><i class="fas fa-exclamation-triangle"></i> Zona Peligrosa</h3>
+                 <p>Eliminar tu cuenta es permanente y borrará todos tus datos asociados.</p>
+                 <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('¿Estás SEGURO de eliminar tu cuenta permanentemente? Perderás todos tus datos.');">
+                     <button type="submit" class="eliminar-cuenta button">Eliminar Mi Cuenta</button>
+                 </form>
+             </section>
+
+        </div> </main>
 
     <footer>
-        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
+        <p>&copy; 2024 NekoPixel. Todos los derechos reservados.</p>
+        <a href="{{ url_for('index') }}" class="footer-icon"><i class="fas fa-home"></i></a>
+        <a href="{{ url_for('explore') }}" class="footer-icon"><i class="fas fa-compass"></i></a>
+        <a href="#" onclick="togglePopup('postPopup')" class="footer-icon"><i class="fas fa-plus-square"></i></a>
+        <a href="{{ url_for('notifications') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-bell"></i></a>
+        <a href="{{ url_for('perfil') if 'username' in session else url_for('login') }}" class="footer-icon active"><i class="fas fa-user"></i></a> 
     </footer>
 
     <script>
         function toggleDropdown() {
             var dropdownContent = document.getElementById("dropdown-content");
-            dropdownContent.classList.toggle("show");
+            dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
         }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.user-profile img')) {
+        window.addEventListener('click', function(event) {
+            if (!event.target.closest('.user-profile')) { 
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+                     dropdowns[i].style.display = "none";
                 }
             }
+        });
+        
+        // Función togglePopup básica (si se usan popups en esta página)
+        function togglePopup(popupId) {
+             var popup = document.getElementById(popupId);
+             if (popup) {
+                 popup.classList.toggle("active");
+                 document.body.style.overflow = popup.classList.contains('active') ? 'hidden' : 'auto';
+             }
+        }
+        function closePopup(popupId) {
+             var popup = document.getElementById(popupId);
+             if(popup && popup.classList.contains('active')) {
+                 popup.classList.remove('active');
+                 if (!document.querySelector('.popup.active')) { document.body.style.overflow = 'auto'; }
+             }
         }
     </script>
 </body>

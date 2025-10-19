@@ -1,81 +1,208 @@
+/* ==========================================================================
+   NEKOPIXEL BASE STYLES (v3 - Dark/Neon - COMMON ELEMENTS)
+   ========================================================================== */
+
+/* --- 1. Variables Globales y Reset --- */
+:root {
+    --nekopixel-bg-dark: #12121D;       
+    --nekopixel-card-dark: #1F1F2B;     
+    --nekopixel-input-dark: #2B2B3A;    
+    --nekopixel-text-light: #E0E0E0;    
+    --nekopixel-text-medium: #A0A0A0;   
+    --nekopixel-border-accent: #3A3A4A; 
+    --nekopixel-border-neon-blue: #00E5FF; 
+    --nekopixel-border-neon-pink: #FF00E5; 
+    --nekopixel-button-primary: #00E5FF; 
+    --nekopixel-button-hover: #00BFFF;   
+    --nekopixel-button-secondary: #3A3A4A; 
+    --nekopixel-danger: #e74c3c; 
+    --nekopixel-transparent-dark: rgba(31, 31, 43, 0.9); 
+
+    /* Colores Avatares */
+    --avatar-color-1: #FF5733; --avatar-color-2: #33FF57; --avatar-color-3: #5733FF; 
+    --avatar-color-4: #FF33EC; --avatar-color-5: #33ECFF; --avatar-color-6: #FFDD33;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* --- NUEVO: Estilos para el Avatar de Invitado --- */
+.avatar-circle.avatar-guest {
+    background-color: var(--nekopixel-button-secondary); /* Fondo gris oscuro */
+    border-color: var(--nekopixel-border-accent); /* Borde más sutil */
+    box-shadow: none; /* Sin sombra neón */
+}
+.avatar-circle.avatar-guest i { /* Estilo del icono fa-user */
+    font-size: 1.5em; /* Tamaño del icono */
+    color: var(--nekopixel-text-medium); /* Color grisáceo */
+    line-height: 1; 
+    display: inline-block; /* Asegurar visibilidad */
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: var(--nekopixel-bg-dark); 
+    color: var(--nekopixel-text-light); 
+    background-image: url('img/bg-neon.jpg'); 
+    background-size: cover; background-position: center center;
+    background-attachment: fixed; background-repeat: no-repeat;
+    overflow-x: hidden; overflow-y: auto; 
+    padding-top: 60px; padding-bottom: 40px; /* Espacio global header/footer */
 }
+::-webkit-scrollbar { width: 8px; background-color: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--nekopixel-text-medium); border-radius: 4px; }
+::-webkit-scrollbar-track { background-color: transparent; }
 
-.button {
-    padding: 10px 20px;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
+/* --- 2. Header y Footer (Fijos y Comunes) --- */
+header, footer {
+    background-color: var(--nekopixel-card-dark); 
+    border-color: var(--nekopixel-border-accent); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); 
+    padding: 0 20px; 
+    position: fixed; left: 0; right: 0; z-index: 1000; box-sizing: border-box;
 }
-
-.logo {
-    font-family: "Tiny5", sans-serif;
-    font-style: normal;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
+header {
+    border-bottom: 1px solid var(--nekopixel-border-accent); 
+    display: flex; justify-content: space-between; align-items: center;
+    top: 0; height: 60px; 
 }
-
-.logo-img {
-width: 40px;
-  height: 40px;
-  border-radius: 50%; /* Esto es lo que hace que sea un círculo */
-  border: 1px solid #000000;
-  cursor: pointer;
-  text-align: center;
-}
-
-
-
-.logo:hover {
-    opacity: 0.8;
-}
-
-.button:hover {
-    background-color: #555;
-}
-
-a {
-    color: #333;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-.alert {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-
-/* Footer */
 footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    border-top: 1px solid var(--nekopixel-border-accent); 
+    color: var(--nekopixel-text-medium);
+    bottom: 0; height: 40px;
+    text-align: center; line-height: 40px; 
+    font-size: 0.8rem;
+    /* Iconos nav inferior (móvil) */
+    display: flex; justify-content: space-around; align-items: center;
+}
+footer p { display: none; } /* Ocultar texto copyright por defecto */
+footer a.footer-icon { color: var(--nekopixel-text-medium); font-size: 1.5rem; text-decoration: none; display: none; } /* Ocultos por defecto */
+footer a.footer-icon:hover, footer a.footer-icon.active { color: var(--nekopixel-border-neon-pink); }
+@media (min-width: 769px) { /* Mostrar texto copyright en escritorio */
+    footer p { display: block; }
+    footer a.footer-icon { display: none; }
+}
+@media (max-width: 768px) { /* Mostrar iconos en móvil */
+     footer a.footer-icon { display: inline-block; }
+     footer { padding: 0 10px; height: 60px; } /* Ajustar footer móvil */
+}
+
+/* --- 3. Componentes Comunes --- */
+.logo { 
+    font-family: "Tiny5", sans-serif; color: #FFFFFF; 
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.7), 0 0 15px rgba(0, 229, 255, 0.5); 
+    font-size: 1.8rem; cursor: pointer; text-decoration: none;
+    /* Cursor Pixelado (Necesitas img/pixel-back.png) */
+    cursor: url('static/img/pixel-back.cur'), pointer;
+}
+a.logo:hover { text-decoration: none; } 
+
+.search-bar { flex-grow: 1; margin: 0 20px; text-align: center; }
+.search-bar input { 
+    background-color: var(--nekopixel-input-dark); border: 1px solid var(--nekopixel-border-accent);
+    color: var(--nekopixel-text-light); padding: 8px 15px; border-radius: 20px;
+    width: 100%; max-width: 400px; box-sizing: border-box;
+}
+.search-bar input::placeholder { color: var(--nekopixel-text-medium); }
+
+.button { 
+    border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;
+    transition: all 0.3s ease; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+}
+.button-primary, .post-btn { 
+    background-color: var(--nekopixel-button-primary); color: var(--nekopixel-bg-dark); 
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5); 
+}
+.button-primary:hover, .post-btn:hover { background-color: var(--nekopixel-button-hover); box-shadow: 0 0 15px rgba(0, 229, 255, 0.8); }
+.button-secondary { 
+    background-color: var(--nekopixel-button-secondary); color: var(--nekopixel-text-light);
+}
+.button-secondary:hover { background-color: #5A5A6A; }
+.button-danger, .eliminar-cuenta { 
+    background-color: var(--nekopixel-danger); color: white;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+.button-danger:hover, .eliminar-cuenta:hover { background-color: #c0392b; box-shadow: 0 0 15px rgba(231, 76, 60, 0.8); opacity: 1; }
+
+.user-profile { position: relative; cursor: pointer; }
+.avatar-circle { 
+    width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: bold; color: white;
+    border: 2px solid var(--nekopixel-border-neon-blue); box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+    background-color: var(--nekopixel-input-dark); overflow: hidden;
+}
+.avatar-color-1 { background-color: var(--avatar-color-1); } .avatar-color-2 { background-color: var(--avatar-color-2); }
+.avatar-color-3 { background-color: var(--avatar-color-3); } .avatar-color-4 { background-color: var(--avatar-color-4); }
+.avatar-color-5 { background-color: var(--avatar-color-5); } .avatar-color-6 { background-color: var(--avatar-color-6); }
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-circle[data-letter]::before { content: attr(data-letter); text-shadow: 0 0 5px rgba(255,255,255,0.7); }
+
+.dropdown-content { 
+    display: none; position: absolute; right: 0; top: calc(100% + 5px); 
+    background-color: var(--nekopixel-card-dark); 
+    border: 1px solid var(--nekopixel-border-accent); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px; min-width: 160px; z-index: 1001;
+}
+.dropdown-content a { color: var(--nekopixel-text-light); padding: 10px 15px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.dropdown-content a i { color: var(--nekopixel-text-medium); width: 16px; text-align: center;} /* Iconos alineados */
+.dropdown-content a:hover { background-color: var(--nekopixel-input-dark); color: var(--nekopixel-border-neon-blue); }
+.dropdown-content a:hover i { color: var(--nekopixel-border-neon-blue); }
+
+/* Inputs generales */
+textarea, input[type="text"], input[type="url"], input[type="file"], input[type="email"], input[type="password"], select {
+    background-color: var(--nekopixel-input-dark); border: 1px solid var(--nekopixel-border-accent);
+    color: var(--nekopixel-text-light); padding: 12px; border-radius: 8px; font-size: 1rem;
+    width: 100%; box-sizing: border-box;
+}
+textarea { resize: vertical; min-height: 80px; }
+input::placeholder, textarea::placeholder { color: var(--nekopixel-text-medium); }
+label { color: var(--nekopixel-text-light); font-size: 0.9rem; display: block; margin-bottom: 5px; font-weight: bold;}
+input[readonly] { background-color: var(--nekopixel-bg-dark); cursor: not-allowed; opacity: 0.7; }
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23a0a0a0'%3E%3Cpath d='M8 11.5a.5.5 0 0 1-.354-.146l-4-4a.5.5 0 0 1 .708-.708L8 10.293l3.646-3.647a.5.5 0 0 1 .708.708l-4 4A.5.5 0 0 1 8 11.5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; cursor: pointer; }
+.checkbox-group { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+input[type="checkbox"] { width: auto; accent-color: var(--nekopixel-border-neon-blue); }
+
+/* --- 4. Estilos Comunes de Popups --- */
+.popup {
+    display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(18, 18, 29, 0.9); overflow: auto; 
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; 
+    display: flex; justify-content: center; align-items: center; padding: 20px; 
+}
+.popup.active { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
+.popup-content { /* Caja popups pequeños */
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); border-radius: 10px; 
+    margin: auto; width: 90%; max-width: 500px; position: relative; padding: 0; overflow: hidden;
+    transform: translateY(-20px) scale(0.95); transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+}
+.popup.active .popup-content { transform: translateY(0) scale(1); }
+.popup-header {
+    background-color: var(--nekopixel-bg-dark); padding: 15px 25px; border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.popup-header h2 { color: var(--nekopixel-border-neon-pink); margin: 0; font-size: 1.25rem; }
+.popup-header .close { color: #aaa; position: static; font-size: 32px; font-weight: bold; cursor: pointer; padding: 0; line-height: 1; background: none; border: none; }
+.popup-header .close:hover { color: white; }
+.popup-body { padding: 25px; }
+.popup-body form { display: flex; flex-direction: column; gap: 15px; }
+.popup-body label { margin-bottom: -5px; } 
+
+/* --- 5. Alertas Flash --- */
+.alert {
+    padding: 15px; border-radius: 8px; margin-bottom: 20px;
+    background-color: var(--nekopixel-input-dark); 
+    border: 1px solid var(--nekopixel-border-accent); 
+    font-weight: bold;
+}
+.alert-success { color: var(--nekopixel-border-neon-blue); border-left: 5px solid var(--nekopixel-border-neon-blue); }
+.alert-error { color: var(--nekopixel-danger); border-left: 5px solid var(--nekopixel-danger); }
+.alert-info { color: var(--nekopixel-text-medium); border-left: 5px solid var(--nekopixel-text-medium); }
+
+/* --- 6. Media Queries Base (Header/Footer Móvil) --- */
+@media (max-width: 768px) {
+    body { padding-top: 50px; padding-bottom: 60px; }
+    header { height: 50px; padding: 0 10px; }
+    header .logo { font-size: 1.5rem; }
+    .search-bar { display: none; } 
+    .user-profile .avatar-circle { width: 30px; height: 30px; font-size: 1rem; border-width: 1px; box-shadow: none; }
+    footer { height: 60px; }
 }

@@ -4,211 +4,612 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ community.name }} - NekoPixel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='comunidad.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200..900;1,200..900&family=Tiny5&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Tiny5&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='comunidad.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/'">NEKOPIXEL</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Buscar...">
-            {% if is_member %}
-            <button class="post-btn" onclick="togglePostPopup()">Publicar</button>
+         <a href="{{ url_for('index') }}" class="logo">NEKOPIXEL</a>
+         <div class="search-bar">
+             <input type="text" placeholder="Buscar en {{ community.name }}..."> 
+             {% if is_member %}
+                 <button class="button button-primary post-btn" onclick="togglePopup('postPopup')">
+                     <i class="fas fa-plus"></i> Crear Post
+                 </button>
+             {% endif %}
+         </div>
+         <div class="user-profile" onclick="toggleDropdown()">
+            {# --- Inicio Bloque Avatar Condicional --- #}
+            {% if 'username' in session %}
+                {# Usuario Logueado #}
+                <div class="avatar-circle avatar-color-{{ (session['username']|length % 6) + 1 }}">
+                    {# Intenta cargar la imagen de perfil #}
+                    <img src="{{ url_for('serve_profile_pic', username=session.get('username')) }}" 
+                        alt="{{ session.get('username') }}" 
+                        {# Si falla, oculta img y activa la letra via data-letter #}
+                        onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ (session.get('username', '?')[0])|upper }}');">
+                    {# El CSS se encargará de mostrar la letra usando ::before y data-letter #}
+                </div>
+            {% else %}
+                {# Usuario Invitado (No Logueado) #}
+                <div class="avatar-circle avatar-guest"> {# Clase específica para invitado #}
+                    {# Mostrar icono directamente #}
+                    <i class="fas fa-user"></i> 
+                </div>
             {% endif %}
-        </div>
-        <div class="user-profile" onclick="toggleDropdown()">
-            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Foto de perfil">
+            {# --- Fin Bloque Avatar Condicional --- #}
+
             <div id="dropdown-content" class="dropdown-content">
-                <a href="{{ url_for('perfil') }}">Mi Perfil</a>
-                <a href="{{ url_for('configuracion') }}">Configuración</a>
-                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                {% if 'username' in session %}
+                    <a href="{{ url_for('perfil') }}"><i class="fas fa-user-circle"></i> Mi Perfil</a>
+                    <a href="{{ url_for('configuracion') }}"><i class="fas fa-cog"></i> Configuración</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+                    <a href="{{ url_for('registro') }}"><i class="fas fa-user-plus"></i> Registrarse</a>
+                {% endif %}
             </div>
         </div>
-    </header>
+     </header>
 
-    <!-- Popup para crear publicación en la comunidad (solo para miembros) -->
     {% if is_member %}
-    <div id="postPopup" class="popup">
+    <div id="postPopup" class="popup"> 
         <div class="popup-content">
-            <span class="close" onclick="togglePostPopup()">×</span>
-            <form action="{{ url_for('create_community_post', community_id=community['_id']) }}" method="POST" enctype="multipart/form-data">
-                <textarea name="text" placeholder="¿Qué estás pensando?" rows="3"></textarea>
-                <input type="file" name="media" accept="image/*,video/*">
-                <input type="url" name="link" placeholder="Añadir un enlace">
-                <button type="submit" class="button">Publicar</button>
-            </form>
+            <div class="popup-header">
+                <h2>Crear Post en {{ community.name }}</h2>
+                <span class="close" onclick="closePopup('postPopup')">×</span>
+            </div>
+            <div class="popup-body">
+                <form action="{{ url_for('create_community_post', community_id=community['_id']) }}" method="POST" enctype="multipart/form-data">
+                    <textarea name="text" placeholder="¿Qué estás pensando?" rows="4"></textarea>
+                    <input type="file" name="media" accept="image/*,video/*,image/webp">
+                    <input type="url" name="link" placeholder="Añadir un enlace (opcional)">
+                    <button type="submit" class="button button-primary">Publicar</button>
+                </form>
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- Popup para editar publicación -->
     {% for post in posts %}
         {% if 'username' in session and session['username'] == post.username %}
-        <div id="editPopup-{{ post['_id'] }}" class="popup">
-            <div class="popup-content">
-                <span class="close" onclick="toggleEditPopup('{{ post['_id'] }}')">×</span>
-                <form action="{{ url_for('edit_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST" enctype="multipart/form-data">
-                    <textarea name="text" placeholder="¿Qué estás pensando?" rows="3">{{ post.text }}</textarea>
-                    <input type="file" name="media" accept="image/*,video/*">
-                    <input type="url" name="link" placeholder="Añadir un enlace" value="{{ post.link or '' }}">
-                    <button type="submit" class="button">Guardar Cambios</button>
-                </form>
-            </div>
-        </div>
+        <div id="editPopup-{{ post['_id'] }}" class="popup"> 
+             <div class="popup-content">
+                 <div class="popup-header">
+                     <h2>Editar Publicación</h2>
+                     <span class="close" onclick="closePopup('editPopup-{{ post['_id'] }}')">×</span> 
+                 </div>
+                 <div class="popup-body">
+                     <form action="{{ url_for('edit_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST" enctype="multipart/form-data">
+                         <textarea name="text" rows="4">{{ post.text }}</textarea>
+                         <input type="file" name="media" accept="image/*,video/*,image/webp">
+                         <p style="font-size: 0.9rem; color: var(--nekopixel-text-medium);">
+                            {% if post.media_data %}Archivo: {{ post.media_data.filename }} (subir reemplaza){% else %}No hay archivo.{% endif %}
+                         </p>
+                         <input type="url" name="link" value="{{ post.link or '' }}">
+                         <button type="submit" class="button button-primary">Guardar Cambios</button>
+                     </form>
+                 </div>
+             </div>
+         </div>
         {% endif %}
-    {% endfor %}
-
-    <main>
-        <!-- Banner de la comunidad -->
-        <div class="community-banner">
-            <img src="{{ url_for('serve_community_banner', community_id=community['_id']) }}" alt="Banner de {{ community.name }}">
-        </div>
-
-        <!-- Nombre de la comunidad con botón "Unirse" al lado derecho -->
-        <div class="community-name">
-            <div class="name-container">
-                <h1>{{ community.name }}</h1>
-                {% if 'username' in session and not is_member %}
-                <form action="{{ url_for('join_community', community_id=community['_id']) }}" method="POST" class="join-form">
-                    <button type="submit" class="join-btn">Unirse</button>
-                </form>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="community-layout">
-            <!-- Lista de miembros (lado izquierdo) -->
-            <aside class="sidebar-left">
-                <h3>Miembros ({{ community.members|length }})</h3>
-                <ul>
-                    {% for member in community.members %}
-                        <li>
-                            <img src="{{ url_for('serve_profile_pic', username=member) }}" alt="Foto de {{ member }}" class="member-pic">
-                            <span>{{ member }}</span>
-                            {% if is_creator and member != community.creator %}
-                            <form action="{{ url_for('remove_community_member', community_id=community['_id'], username=member) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="delete-btn" onclick="return confirm('¿Seguro que quieres eliminar a {{ member }} de la comunidad?');">Eliminar</button>
-                            </form>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </aside>
-
-            <!-- Publicaciones (centro) -->
-            <section class="publicaciones">
-                {% for post in posts %}
-                <div class="publicacion">
-                    <div class="post-header">
-                        <strong>{{ post.username }}</strong>
-                        <small>{{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-                        {% if 'username' in session and (is_creator or session['username'] == post.username) %}
-                        <div class="post-actions-admin">
-                            {% if session['username'] == post.username %}
-                            <button class="edit-btn" onclick="toggleEditPopup('{{ post['_id'] }}')">Editar</button>
-                            {% endif %}
-                            <form action="{{ url_for('delete_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="delete-btn" onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');">Eliminar</button>
+         {% for comment in post.comments %}
+              {% if 'username' in session and session['username'] == comment.username %}
+                <div id="editCommentPopupCommunity-{{ post['_id'] }}-{{ loop.index0 }}" class="popup"> 
+                    <div class="popup-content">
+                         <div class="popup-header">
+                            <h2>Editar Comentario</h2>
+                            <span class="close" onclick="closePopup('editCommentPopupCommunity-{{ post['_id'] }}-{{ loop.index0 }}')">×</span>
+                        </div>
+                        <div class="popup-body">
+                            <form action="{{ url_for('edit_community_comment', community_id=community['_id'], post_id=post['_id'], comment_index=loop.index0) }}" method="POST">
+                                <textarea name="comment" rows="3">{{ comment.text }}</textarea>
+                                <button type="submit" class="button button-primary">Guardar Cambios</button>
                             </form>
                         </div>
-                        {% endif %}
-                    </div>
-                    <p>{{ post.text }}</p>
-                    {% if post.media_data %}
-                        {% if post.media_data.filename.endswith(('.png', '.jpg', '.jpeg')) %}
-                            <img src="{{ url_for('serve_community_media', community_id=community['_id'], post_id=post['_id']) }}" alt="Media">
-                        {% elif post.media_data.filename.endswith('.mp4') %}
-                            <video controls>
-                                <source src="{{ url_for('serve_community_media', community_id=community['_id'], post_id=post['_id']) }}" type="video/mp4">
-                            </video>
-                        {% endif %}
-                    {% endif %}
-                    {% if post.link %}
-                        <a href="{{ post.link }}" target="_blank">{{ post.link }}</a>
-                    {% endif %}
-                    <div class="post-actions">
-                        <form action="{{ url_for('like_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="action-btn">Like ({{ post.likes|length }})</button>
-                        </form>
-                        <button class="action-btn" onclick="toggleComments('{{ post['_id'] }}')">Comentar</button>
-                    </div>
-                    <div id="comments-{{ post['_id'] }}" class="comments" style="display:none;">
-                        <form action="{{ url_for('comment_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST">
-                            <input type="text" name="comment" placeholder="Escribe un comentario..." required>
-                            <button type="submit">Enviar</button>
-                        </form>
-                        {% if post.comments %}
-                            {% for comment in post.comments %}
-                                <div class="comment">
-                                    <strong>{{ comment.username }}</strong>: {{ comment.text }}
-                                    <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-                                    {% if is_creator %}
-                                    <form action="{{ url_for('delete_community_comment', community_id=community['_id'], post_id=post['_id'], comment_index=loop.index) }}" method="POST" style="display:inline;">
-                                        <button type="submit" class="delete-btn" onclick="return confirm('¿Seguro que quieres eliminar este comentario?');">Eliminar</button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No hay comentarios aún.</p>
-                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
-            </section>
+              {% endif %}
+         {% endfor %}
+    {% endfor %}
 
-            <!-- Información de la comunidad (lado derecho) -->
-            <aside class="sidebar-right">
-                <h3>Información</h3>
-                <p><strong>Creador:</strong> {{ community.creator }}</p>
-                <p><strong>Etiquetas:</strong> {{ community.tags|join(', ') }}</p>
-                <p><strong>Miembros:</strong> {{ community.members|length }}</p>
-                <p><strong>Publicaciones:</strong> {{ posts|length }}</p>
-            </aside>
+    {% if is_creator %}
+    <div id="communitySettingsPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-cog"></i> Configurar Guild</h2>
+                <span class="close" onclick="closePopup('communitySettingsPopup')">×</span>
+            </div>
+            <div class="popup-body">
+                <form action="{{ url_for('edit_community', community_id=community['_id']) }}" method="POST" class="settings-form"> <div class="form-group">
+                        <label for="community_name">Nombre del Guild:</label>
+                        <input type="text" id="community_name" name="name" value="{{ community.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="community_tags">Etiquetas (separadas por coma):</label>
+                        <input type="text" id="community_tags" name="tags" value="{{ community.tags|join(', ') }}">
+                    </div>
+                    <button type="submit" class="button button-primary">Guardar Cambios</button>
+                </form>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--nekopixel-border-accent); text-align: center;">
+                    <h4 style="color: var(--nekopixel-danger); margin-bottom: 10px;">Zona Peligrosa</h4>
+                    <form action="{{ url_for('delete_community', community_id=community['_id']) }}" method="POST" onsubmit="return confirm('¿ESTÁS SEGURO? Eliminar este Guild es PERMANENTE y borrará TODOS sus posts y miembros.');"> <button type="submit" class="delete-community-button button">Eliminar Guild Permanentemente</button>
+                    </form>
+                </div>
+            </div>
         </div>
+    </div>
+    {% endif %}
+
+
+    <div class="community-banner-container"> 
+        <img src="{{ url_for('serve_community_banner', community_id=community['_id']) }}" 
+             alt="Banner de {{ community.name }}"
+             onerror="this.parentElement.style.backgroundImage='url({{ url_for('static', filename='img/default-banner.jpg') }})'; this.remove();"> 
+         {% if is_creator %}
+             <label for="community_banner_input" class="change-community-banner-button" title="Cambiar banner">
+                 <i class="fas fa-image"></i> Cambiar Banner
+             </label>
+             <form action="{{ url_for('update_community_banner', community_id=community['_id']) }}" method="POST" enctype="multipart/form-data" id="communityBannerForm" style="display: none;">
+                 <input type="file" name="community_banner" id="community_banner_input" accept="image/*,image/webp" onchange="document.getElementById('communityBannerForm').submit();">
+             </form>
+         {% endif %}
+     </div>
+
+     <div class="community-header"> 
+         <h1>{{ community.name }}</h1>
+         <div class="community-actions"> 
+             {% if 'username' in session %}
+                 {% if is_creator %}
+                     <button class="community-settings-btn button" onclick="togglePopup('communitySettingsPopup')" title="Configurar Guild">
+                         <i class="fas fa-cog"></i> Configurar
+                     </button>
+                 {% elif is_member %}
+                     <form action="{{ url_for('leave_community', community_id=community['_id']) }}" method="POST"> 
+                         <button type="submit" class="leave-btn button button-secondary" onclick="return confirm('¿Seguro que quieres salir de este Guild?');">
+                             <i class="fas fa-sign-out-alt"></i> Salir del Guild
+                         </button>
+                     </form>
+                 {% else %}
+                     <form action="{{ url_for('join_community', community_id=community['_id']) }}" method="POST">
+                         <button type="submit" class="join-btn button button-primary">
+                             <i class="fas fa-plus"></i> Unirse a la Comunidad
+                         </button>
+                     </form>
+                 {% endif %}
+             {% else %}
+                  <a href="{{ url_for('login') }}" class="join-btn button button-primary">
+                     <i class="fas fa-sign-in-alt"></i> Inicia sesión para unirte
+                  </a>
+             {% endif %}
+         </div>
+     </div>
+
+
+    <main class="community-page"> 
+        
+        <aside class="sidebar-left">
+            <h3><i class="fas fa-users"></i> Miembros ({{ community.members|length }})</h3>
+            <ul class="members-list">
+                {% for member in community.members %}
+                    <li>
+                         <div class="avatar-circle avatar-color-{{ (member|length % 6) + 1 }}">
+                             <img src="{{ url_for('serve_profile_pic', username=member) }}" 
+                                  alt="{{ member }}"
+                                  onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ member[0]|upper }}');">
+                         </div>
+                         <span>{{ member }} {% if member == community.creator %}<i class="fas fa-crown" title="Creador" style="color: #FFD700; font-size: 0.8em; margin-left: 5px;"></i>{% endif %}</span>
+                         {% if is_creator and member != community.creator %}
+                         <div class="member-actions"> 
+                             <form action="{{ url_for('remove_community_member', community_id=community['_id'], username=member) }}" method="POST">
+                                 <button type="submit" class="delete-btn button button-danger" onclick="return confirm('¿Seguro que quieres eliminar a {{ member }} del Guild?');" title="Eliminar miembro">
+                                     <i class="fas fa-times"></i>
+                                 </button>
+                             </form>
+                         </div>
+                         {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <section class="publicaciones">
+             {% if not posts %}
+                 <div class="publicacion" style="text-align: center; border-style: dashed; border-color: var(--nekopixel-border-accent);">
+                     <p style="color: var(--nekopixel-text-medium); font-style: italic;">
+                         <i class="fas fa-feather-alt" style="margin-right: 8px;"></i> ¡Aún no hay publicaciones! Sé el primero.
+                     </p>
+                     {% if is_member %}
+                         <button class="button button-primary" onclick="togglePopup('postPopup')" style="margin-top: 15px;">
+                             <i class="fas fa-plus"></i> Crear Post
+                         </button>
+                     {% endif %}
+                 </div>
+             {% endif %}
+
+            {% for post in posts %}
+            <div class="publicacion" id="post-{{ post['_id'] }}">
+                <div class="post-header">
+                    <div class="post-author-info"> 
+                        <div class="avatar-circle avatar-color-{{ (post.username|length % 6) + 1 }}">
+                            <img src="{{ url_for('serve_profile_pic', username=post.username) }}" 
+                                 alt="{{ post.username }}"
+                                 onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ post.username[0]|upper }}');">
+                        </div>
+                        <div>
+                            <strong>{{ post.username }}</strong>
+                        </div>
+                    </div>
+                    <small>{{ post.timestamp.strftime('%Y-%m-%d %H:%M') if post.timestamp else 'Fecha desconocida' }}</small> 
+                    <small class="post-data-timestamp" style="display:none;">{{ post.timestamp.isoformat() if post.timestamp else '' }}</small>
+                    
+                    {% if 'username' in session and (is_creator or session['username'] == post.username) %}
+                    <div class="post-actions-admin">
+                        {% if session['username'] == post.username %}
+                            <button class="edit-btn button button-secondary" onclick="togglePopup('editPopup-{{ post['_id'] }}')"><i class="fas fa-edit"></i></button>
+                        {% endif %}
+                        <form action="{{ url_for('delete_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST">
+                            <button type="submit" class="delete-btn button button-danger" onclick="return confirm('¿Seguro que quieres eliminar esta publicación?');"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="post-text-content" {% if post.media_data %}onclick="openPostModal('{{ post['_id'] }}')"{% endif %}>
+                    <p>{{ post.text }}</p>
+                </div>
+
+                {% if post.media_data %}
+                    <div class="post-media-container" onclick="openPostModal('{{ post['_id'] }}')">
+                        {% if post.media_data.content_type.startswith('image/') %}
+                            <img src="{{ url_for('serve_community_media', community_id=community['_id'], post_id=post['_id']) }}" alt="Media">
+                        {% elif post.media_data.content_type.startswith('video/') %}
+                             <video muted loop autoplay playsinline> 
+                                <source src="{{ url_for('serve_community_media', community_id=community['_id'], post_id=post['_id']) }}" type="{{ post.media_data.content_type }}">
+                            </video>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                {% if post.link %}
+                    <a href="{{ post.link }}" target="_blank" style="color: var(--nekopixel-border-neon-blue); text-decoration: none; word-break: break-all; margin-top: 10px; display: inline-block;">{{ post.link }}</a>
+                {% endif %}
+
+                <div class="post-actions">
+                    <form action="{{ url_for('like_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="action-btn"><i class="fas fa-heart"></i> Like ({{ post.likes|length }})</button>
+                    </form>
+                    <button class="action-btn" onclick="toggleComments('{{ post['_id'] }}')"><i class="fas fa-comment"></i> Comentar</button>
+                </div>
+                <div id="comments-{{ post['_id'] }}" class="comments" style="display:none;">
+                    <form action="{{ url_for('comment_community_post', community_id=community['_id'], post_id=post['_id']) }}" method="POST">
+                        <input type="text" name="comment" placeholder="Escribe un comentario..." required>
+                        <button type="submit" class="button button-primary">Enviar</button>
+                    </form>
+                    
+                    {% if post.comments %}
+                        {% for comment in post.comments %}
+                            <div class="comment">
+                                <div> 
+                                    <strong>{{ comment.username }}</strong> {{ comment.text }}
+                                    <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') if comment.timestamp else '' }}</small>
+                                </div>
+                                
+                                <div class="comment-actions" style="display: flex; gap: 5px; align-items: center;">
+                                    {% if 'username' in session and session['username'] == comment.username %}
+                                         <button class="edit-btn button button-secondary" 
+                                                 onclick="togglePopup('editCommentPopupCommunity-{{ post['_id'] }}-{{ loop.index0 }}')">
+                                             <i class="fas fa-edit"></i>
+                                         </button>
+                                    {% endif %}
+                                    
+                                    {% if is_creator %} 
+                                         <form action="{{ url_for('delete_community_comment', community_id=community['_id'], post_id=post['_id'], comment_index=loop.index0) }}" method="POST"> 
+                                              <button type="submit" class="delete-btn button button-danger" 
+                                                      onclick="return confirm('¿Seguro que quieres eliminar este comentario?');" 
+                                                      title="Eliminar comentario">
+                                                  <i class="fas fa-times"></i>
+                                              </button>
+                                          </form>
+                                    {% endif %}
+                                </div>
+                                </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--nekopixel-text-medium); font-style: italic;">No hay comentarios aún.</p>
+                    {% endif %}
+                </div> </div> {% endfor %}
+        </section>
+
+        <aside class="sidebar-right">
+            <h3><i class="fas fa-info-circle"></i> Info del Guild</h3>
+            <div class="community-info-details">
+                <p><strong>Creador:</strong> <span>{{ community.creator }} <i class="fas fa-crown" title="Creador" style="color: #FFD700; font-size: 0.8em;"></i></span></p>
+                <p><strong>Miembros:</strong> <span>{{ community.members|length }}</span></p>
+                <p><strong>Posts:</strong> <span>{{ posts|length }}</span></p>
+                 <p><strong>Creado:</strong> <span>{{ community.created_at.strftime('%d %b %Y') if community.created_at else 'N/A' }}</span></p>
+                 <p><strong>Etiquetas:</strong></p>
+                 <div class="tags">
+                    {% for tag in community.tags %}
+                        <span>{{ tag }}</span>
+                    {% else %}
+                         <p class="no-tags">Sin etiquetas</p>
+                    {% endfor %}
+                 </div>
+            </div>
+        </aside>
     </main>
 
     <footer>
-        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
-    </footer>
+         <p>&copy; 2024 NekoPixel. Todos los derechos reservados.</p>
+          <a href="{{ url_for('index') }}" class="footer-icon"><i class="fas fa-home"></i></a>
+          <a href="{{ url_for('explore') }}" class="footer-icon"><i class="fas fa-compass"></i></a>
+          <a href="#" onclick="togglePopup('postPopup')" class="footer-icon"><i class="fas fa-plus-square"></i></a>
+          <a href="{{ url_for('notifications') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-bell"></i></a>
+          <a href="{{ url_for('perfil') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-user"></i></a> 
+     </footer>
+
+     <div id="postModal" class="popup">
+         <div class="modal-wrapper">
+             <span class="close" onclick="closePostModal()">×</span>
+             <div class="modal-post-container" id="modal-post-media" onclick="toggleZoom(event)"></div>
+             <div class="modal-sidebar">
+                 <div id="modal-post-header"></div>
+                 <div id="modal-post-body"></div>
+                 <div id="modal-post-actions"></div>
+                 <div id="modal-post-comments">
+                      <h3>Comentarios</h3>
+                      <div id="modal-comments-list"></div>
+                      <form id="modalCommentForm" method="POST"> 
+                          <input type="text" name="comment" placeholder="Escribe un comentario..." required>
+                          <button type="submit" class="button button-primary">Enviar</button>
+                      </form>
+                 </div>
+             </div>
+         </div>
+     </div>
 
     <script>
+       // --- Funciones toggle* ACTUALIZADAS para usar clase 'active' ---
         function toggleDropdown() {
             var dropdownContent = document.getElementById("dropdown-content");
             dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
         }
 
-        function togglePostPopup() {
-            var popup = document.getElementById("postPopup");
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-        }
-
-        function toggleEditPopup(postId) {
-            var popup = document.getElementById("editPopup-" + postId);
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-        }
-
-        function toggleComments(postId) {
-            var comments = document.getElementById("comments-" + postId);
-            if (comments) {
-                comments.style.display = comments.style.display === "block" ? "none" : "block";
+        function togglePopup(popupId) {
+            var popup = document.getElementById(popupId);
+            if (popup) {
+                // Si es el modal de post, preparamos el cierre limpiando el zoom
+                if (popupId === 'postModal' && popup.classList.contains('active')) {
+                    resetZoomOnClose(); // Llama a resetear ANTES de ocultar
+                }
+                popup.classList.toggle("active");
+                // Prevenir scroll del body cuando un popup está activo (excepto el modal de post que ya tiene overflow)
+                if (popupId !== 'postModal' && popup.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                     // Solo restaura si no hay OTRO popup activo
+                     if (!document.querySelector('.popup.active:not(#postModal)')) {
+                          document.body.style.overflow = 'auto';
+                     }
+                }
             } else {
-                console.error("No se encontró el elemento con ID: comments-" + postId);
+                console.error("Popup con ID:", popupId, "no encontrado.");
             }
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('.user-profile img')) {
+        function closePopup(popupId) { // Función explícita para cerrar
+             var popup = document.getElementById(popupId);
+             if(popup && popup.classList.contains('active')) {
+                 if (popupId === 'postModal') {
+                     resetZoomOnClose();
+                 }
+                 popup.classList.remove('active');
+                 // Restaurar scroll del body si no quedan otros popups activos
+                 if (!document.querySelector('.popup.active:not(#postModal)')) {
+                    document.body.style.overflow = 'auto';
+                 }
+             }
+        }
+
+        // --- ¡NUEVA! Función Específica para Editar Comentario ---
+        // (Llamada desde el botón Editar en el comentario)
+        // No necesita datos extras porque el popup ya tiene la URL correcta
+        function toggleEditCommentPopupCommunity(postId, commentIndex) {
+            togglePopup(`editCommentPopupCommunity-${postId}-${commentIndex}`);
+        }
+
+
+        // Funciones específicas que llaman a togglePopup o closePopup
+        // function togglePostPopup() { togglePopup('postPopup'); } // Llamada directa desde el botón ahora
+        // function toggleCommunityPopup() { togglePopup('createCommunityPopup'); } // Llamada directa
+        function closePostModal() { 
+            closePopup('postModal'); 
+            // Limpiar contenido DESPUÉS de la transición
+            setTimeout(() => {
+                document.getElementById('modal-post-media').innerHTML = '';
+                document.getElementById('modal-post-header').innerHTML = '';
+                document.getElementById('modal-post-body').innerHTML = '';
+                document.getElementById('modal-post-actions').innerHTML = '';
+                // No limpiar modal-post-comments entero, solo la lista
+                var commentList = document.getElementById('modal-comments-list');
+                if(commentList) commentList.innerHTML = ''; 
+                var video = document.querySelector('#postModal video'); 
+                if (video) video.pause();
+            }, 300); 
+        } 
+
+        function toggleEditPopup(postId, text, link, mediaFilename) {
+            var popup = document.getElementById("editPopup");
+            if (!popup) return;
+            if (postId) {
+                var form = document.getElementById("editForm");
+                var textArea = document.getElementById("editText");
+                var linkInput = document.getElementById("editLink");
+                var currentMedia = document.getElementById("currentMedia");
+                form.action = "{{ url_for('edit_post', post_id='PID') }}".replace('PID', postId); // URL dinámica
+                textArea.value = text;
+                linkInput.value = link;
+                currentMedia.innerHTML = mediaFilename ? `Archivo actual: ${mediaFilename} (sube uno nuevo para reemplazarlo)` : "No hay archivo actual";
+                togglePopup('editPopup'); // Mostrar con la función general
+            } else {
+                 closePopup('editPopup'); // Ocultar con la función general
+            }
+        }
+        
+        // function toggleEditCommentPopup(postId, commentIndex) { // Llamada directa ahora
+        //     var popupId = `editCommentPopup-${postId}-${commentIndex}`;
+        //     togglePopup(popupId);
+        // }
+
+        function toggleComments(postId) { // Sigue usando display por simplicidad
+            var comments = document.getElementById("comments-" + postId);
+            if (comments) {
+                comments.style.display = comments.style.display === "block" ? "none" : "block";
+            }
+        }
+        
+        // Cierre global de dropdown
+        window.addEventListener('click', function(event) { // Usar addEventListener
+            if (!event.target.closest('.user-profile')) { 
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.style.display === "block") {
-                        openDropdown.style.display = "none";
-                    }
+                    dropdowns[i].style.display = "none";
                 }
+            }
+            // Cierre global de popups pequeños si se hace clic fuera del contenido
+             if (event.target.classList.contains('popup') && !event.target.id.includes('postModal')) {
+                 closePopup(event.target.id);
+             }
+        });
+
+
+        // --- FUNCIONES DEL MODAL DE PUBLICACIÓN ---
+
+        function openPostModal(postId) {
+            var originalPost = document.getElementById('post-' + postId);
+            if (!originalPost) return;
+
+            // --- Clonar Media ---
+            var mediaContainer = document.getElementById('modal-post-media');
+            var originalMediaDiv = originalPost.querySelector('.post-media-container');
+            var originalTextDiv = originalPost.querySelector('.post-text-content');
+            mediaContainer.innerHTML = ''; 
+            if (originalMediaDiv) {
+                // Clonar el contenido, no el contenedor, para evitar doble listener de zoom
+                mediaContainer.innerHTML = originalMediaDiv.innerHTML; 
+                var video = mediaContainer.querySelector('video');
+                if (video) { video.muted = false; video.controls = true; }
+            } else if (originalTextDiv) {
+                mediaContainer.innerHTML = `<div class="modal-text-only">${originalTextDiv.innerHTML}</div>`;
+            }
+
+            // --- Clonar Header ---
+            var headerContainer = document.getElementById('modal-post-header');
+            var authorInfo = originalPost.querySelector('.post-author-info').cloneNode(true);
+            var timestampInfo = originalPost.querySelector('.post-header > small:not(.post-data-timestamp)').cloneNode(true); 
+            headerContainer.innerHTML = ''; 
+            headerContainer.appendChild(authorInfo);
+            headerContainer.appendChild(timestampInfo);
+            var img = headerContainer.querySelector('img'); 
+            if (img && img.onerror) { var src = img.src; img.src = ''; img.src = src; }
+
+            // --- Clonar Texto ---
+            var bodyContainer = document.getElementById('modal-post-body');
+            var originalLink = originalPost.querySelector('a[target="_blank"]');
+            var pText = originalPost.querySelector('.post-text-content p');
+            bodyContainer.innerHTML = pText ? pText.innerHTML : ''; 
+            if (originalLink) { bodyContainer.appendChild(originalLink.cloneNode(true)); }
+            if (originalMediaDiv && originalTextDiv) { // Ocultar texto grande si hay media
+                 var textInMedia = mediaContainer.querySelector('.modal-text-only');
+                 if(textInMedia) textInMedia.style.display = 'none';
+            }
+
+
+            // --- Clonar Acciones ---
+            var actionsContainer = document.getElementById('modal-post-actions');
+            var originalActions = originalPost.querySelector('.post-actions').cloneNode(true);
+             // Limpiar listeners antiguos si es necesario (más avanzado)
+             actionsContainer.innerHTML = ''; // Limpiar antes de añadir
+             // Re-añadir elementos uno por uno o usar innerHTML y re-asignar listeners si es complejo
+             actionsContainer.innerHTML = originalActions.innerHTML;
+             // Re-asignar listener para botón comentar si es necesario (si no usa form submit)
+             // var modalCommentBtn = actionsContainer.querySelector('button[onclick^="toggleComments"]');
+             // if(modalCommentBtn) modalCommentBtn.onclick = () => { /* lógica modal */ };
+
+            // --- Clonar SOLO LA LISTA de Comentarios ---
+            var commentsListContainer = document.getElementById('modal-comments-list');
+            var originalCommentsDiv = originalPost.querySelector('.comments');
+            var commentListHTML = ''; 
+            if (originalCommentsDiv) {
+                var originalCommentNodes = originalCommentsDiv.querySelectorAll('.comment');
+                originalCommentNodes.forEach(commentNode => { commentListHTML += commentNode.outerHTML; });
+                if (!originalCommentNodes.length) {
+                     var noCommentsP = originalCommentsDiv.querySelector('p');
+                     if (noCommentsP) commentListHTML = noCommentsP.outerHTML;
+                }
+            } else {
+                commentListHTML = '<p style="color: var(--nekopixel-text-medium);">No hay comentarios aún.</p>';
+            }
+            commentsListContainer.innerHTML = commentListHTML;
+
+            // Actualizar el 'action' del formulario del modal
+            var modalForm = document.getElementById('modalCommentForm');
+            var originalForm = originalCommentsDiv ? originalCommentsDiv.querySelector('form') : null;
+            if (modalForm && originalForm) {
+                modalForm.action = originalForm.action; 
+            } else if (modalForm) {
+                 modalForm.action = "#"; // Acción por defecto o error
+                 console.error("No se pudo encontrar el formulario original para copiar la acción.");
+            }
+
+            // Mostrar el modal
+            togglePopup('postModal'); 
+        }
+
+        // Función para resetear zoom (llamada desde closePostModal)
+        function resetZoomOnClose() {
+             var container = document.getElementById('modal-post-media');
+             if (container.classList.contains('zoomed-in')) { // Solo si estaba zoomeado
+                 var media = container.querySelector('img') || container.querySelector('video');
+                 if (media) {
+                     media.style.transform = 'scale(1)';
+                     media.style.transformOrigin = 'center center';
+                 }
+                 container.classList.remove('zoomed-in');
+             }
+        }
+
+        // Función de Zoom (sin cambios)
+        function toggleZoom(event) {
+            var container = document.getElementById('modal-post-media');
+            // Evitar zoom si se hace clic en controles de video
+            if (event.target.tagName === 'VIDEO' && event.target.controls) {
+                 var rect = event.target.getBoundingClientRect();
+                 if (event.clientY > (rect.bottom - 40)) { return; }
+            }
+
+            var media = container.querySelector('img') || container.querySelector('video');
+            if (!media) return; 
+
+            if (container.classList.contains('zoomed-in')) {
+                media.style.transform = 'scale(1)';
+                media.style.transformOrigin = 'center center';
+                container.classList.remove('zoomed-in');
+            } else {
+                var rect = container.getBoundingClientRect();
+                var x = event.clientX - rect.left;
+                var y = event.clientY - rect.top;
+                media.style.transformOrigin = `${x}px ${y}px`;
+                media.style.transform = 'scale(2.5)';
+                container.classList.add('zoomed-in');
             }
         }
     </script>

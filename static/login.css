@@ -1,114 +1,146 @@
-/* Estilos para el header en la página de inicio de sesión */
-header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+/* ==========================================================================
+   LOGIN & REGISTRO STYLES (v1 - Dark/Neon)
+   ========================================================================== */
 
-.logo-login {
-    font-family: "Tiny5", sans-serif;
-    font-style: normal;
-    font-size: 60px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.logo-login-img {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 1px solid #000000;
-    margin-bottom: 10px; /* Espacio entre la imagen y el texto */
-}
-
-
-/* Estilos para el contenedor de autenticación */
+/* --- Layout Principal --- */
+/* Body y Header heredan de styles.css */
 .auth-container {
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    width: 80%;
-    height: 100vh;
-    gap: 200px; /* Añade un espacio horizontal entre el logo y la caja */
+    display: flex;
+    flex-wrap: wrap; /* Permite que el logo se ponga arriba en móvil */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: calc(100vh - 100px); /* Ocupa el espacio entre header y footer */
+    gap: 50px; /* Espacio entre logo y formulario */
+    padding: 30px;
+    box-sizing: border-box;
 }
 
-/*Contenedor para agrupar la imagen y texto del logo */
+/* --- Lado Izquierdo: Logo --- */
 .logo-wrapper {
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-}
-
-/* Estilos para la caja de autenticación */
-.auth-box {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    max-width: 300px; /* Limitar ancho del logo */
 }
-
-.auth-box h2 {
+.logo-login-img {
+    width: 180px; /* Tamaño ajustado */
+    height: 180px;
+    border-radius: 50%;
     margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+    /* --- AJUSTADO: Borde y Sombra Neón --- */
+    border: 3px solid var(--nekopixel-border-neon-blue);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.6), inset 0 0 10px rgba(0, 229, 255, 0.4);
+}
+.logo-login {
+    font-family: "Tiny5", sans-serif;
+    font-size: 4rem; /* Tamaño ajustado */
+    font-weight: bold;
+    /* --- AJUSTADO: Color y Sombra Neón --- */
+    color: var(--nekopixel-text-light);
+    text-shadow: 0 0 8px var(--nekopixel-border-neon-pink), 0 0 15px rgba(255, 0, 229, 0.5);
 }
 
-/* Estilos para los grupos de formulario */
+/* --- Lado Derecho: Formulario --- */
+.auth-box {
+    background-color: var(--nekopixel-card-dark);
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px; /* Un poco más ancho */
+    text-align: center;
+    /* --- AJUSTADO: Borde y Sombra Neón --- */
+    border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    border-top: 3px solid var(--nekopixel-border-neon-pink); /* Borde superior destacado */
+}
+.auth-box h2 {
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: var(--nekopixel-border-neon-pink);
+    text-shadow: 0 0 8px rgba(255, 0, 229, 0.5);
+}
+
+/* --- Grupos del Formulario con Iconos --- */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-align: left;
+    position: relative; /* Contexto para el icono */
 }
-
 .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: bold;
-    color: #555;
+    color: var(--nekopixel-text-medium);
+    font-size: 0.9rem;
 }
-
+/* Icono dentro del input */
+.form-group i {
+    position: absolute;
+    left: 15px;
+    top: 43px; /* Ajustar verticalmente */
+    color: var(--nekopixel-text-medium);
+    transition: color 0.2s ease;
+}
 .form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+    padding: 12px 12px 12px 45px; /* Padding izquierdo para dejar espacio al icono */
+    /* Hereda estilos de input de styles.css */
+    font-size: 1rem;
+}
+/* Efecto de Foco Neón */
+.form-group input:focus {
+    border-color: var(--nekopixel-border-neon-blue);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    outline: none;
+}
+.form-group input:focus + i { /* Cambia color del icono al hacer foco */
+    color: var(--nekopixel-border-neon-blue);
 }
 
-/* Estilos para el botón de autenticación */
+/* Botón de Autenticación */
 .auth-button {
     width: 100%;
-    padding: 10px;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
+    padding: 12px;
+    font-size: 1.1rem;
+    /* Reutiliza .button .button-primary */
 }
 
-.auth-button:hover {
-    background-color: #555;
+/* Enlaces inferiores (Registrarse, Volver) */
+.auth-links {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: var(--nekopixel-text-medium);
 }
-
-/* Estilos para los enlaces */
-.auth-box p {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #555;
-}
-
-.auth-box a {
-    color: #333;
+.auth-links a {
+    color: var(--nekopixel-border-neon-blue);
     text-decoration: none;
     font-weight: bold;
+    transition: text-shadow 0.2s ease;
+}
+.auth-links a:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 5px rgba(0, 229, 255, 0.7);
 }
 
-.auth-box a:hover {
-    text-decoration: underline;
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column; /* Apilar en móvil */
+        gap: 40px;
+    }
+    .logo-wrapper {
+        margin-top: 20px;
+    }
+    .logo-login-img {
+        width: 120px;
+        height: 120px;
+    }
+    .logo-login {
+        font-size: 3rem;
+    }
+    .auth-box {
+        padding: 25px;
+    }
 }

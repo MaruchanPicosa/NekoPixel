@@ -1,198 +1,166 @@
-/* Estilos para el header */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #2c3e50;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
+/* ==========================================================================
+   PERFIL STYLES (v3 - Dark/Neon - Standalone)
+   ========================================================================== */
+
+/* --- Layout Principal --- */
+main.perfil-page { 
+    padding: 0; 
+    max-width: 100%; 
+    margin: 0 auto; 
+    /* Hereda fondo y padding-top/bottom de body (index.css) */
 }
 
+/* --- Banner --- */
+.profile-banner {
+    width: 100%; height: 300px; 
+    background-color: var(--nekopixel-input-dark); 
+    background-image: url('img/default-banner.jpg'); 
+    background-size: cover; background-position: center center;
+    position: relative; 
+    border-bottom: 2px solid var(--nekopixel-border-neon-pink); 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+.change-banner-button { 
+    position: absolute; bottom: 15px; right: 15px;
+    background-color: rgba(31, 31, 43, 0.8); 
+    color: var(--nekopixel-text-light);
+    border: 1px solid var(--nekopixel-border-accent);
+    padding: 8px 15px; border-radius: 20px; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.change-banner-button:hover {
+    background-color: var(--nekopixel-card-dark);
+    color: var(--nekopixel-border-neon-blue);
+    border-color: var(--nekopixel-border-neon-blue);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+.change-banner-button i { font-size: 1em; }
+#banner_pic_input { display: none; } 
 
-
-/* Estilos para la barra de búsqueda */
-.search-bar input {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 20px;
-    outline: none;
-    width: 200px;
-    background-color: #34495e;
-    color: white;
+/* --- Contenido Debajo del Banner --- */
+.profile-content-wrapper {
+    display: flex; flex-direction: column; align-items: center; 
+    padding: 0 30px 30px 30px; 
+    max-width: 900px; 
+    margin: -100px auto 30px auto; 
+    position: relative; z-index: 2; 
 }
 
-.search-bar input::placeholder {
-    color: #bdc3c7;
+/* --- Cabecera (Avatar, Nombre, Botones) --- */
+.profile-header-card {
+    background-color: var(--nekopixel-card-dark);
+    border: 1px solid var(--nekopixel-border-accent);
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    padding: 20px; width: 100%; display: flex; align-items: center; 
+    gap: 25px; margin-bottom: 30px; 
 }
-
-/* Estilos para el perfil del usuario */
-.user-profile {
-    position: relative;
-    cursor: pointer;
+.profile-avatar-container { margin-top: -80px; position: relative; flex-shrink: 0; }
+.profile-avatar-container .avatar-circle {
+    width: 180px; height: 180px; font-size: 6rem; border-width: 4px; 
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.8); 
 }
-
-.user-profile img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
+.profile-avatar-container .avatar-circle img { border-radius: 50%; }
+.profile-avatar-container .change-pic-button { 
+    position: absolute; bottom: 10px; right: 10px;
+    background-color: rgba(31, 31, 43, 0.8); color: var(--nekopixel-text-light);
+    border: 1px solid var(--nekopixel-border-accent); border-radius: 50%;
+    width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s ease;
 }
-
-/* Estilos para el menú desplegable */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #ffffff;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    z-index: 1001;
+.profile-avatar-container .change-pic-button:hover {
+    background-color: var(--nekopixel-card-dark); color: var(--nekopixel-border-neon-blue);
+    border-color: var(--nekopixel-border-neon-blue); box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
+.profile-avatar-container .change-pic-button i { font-size: 1.3rem; }
+.profile-avatar-container input[type="file"] { display: none; }
 
-.dropdown-content a {
-    color: #2c3e50;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
+.profile-user-info { flex-grow: 1; }
+.profile-user-info h2 { 
+    color: var(--nekopixel-border-neon-pink); font-size: 2.5rem; 
+    margin: 0 0 8px 0; text-shadow: 0 0 8px rgba(255, 0, 229, 0.5);
 }
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
+.profile-user-info p.user-email { 
+    color: var(--nekopixel-text-medium); font-size: 1.1rem; margin: 0;
+    display: inline-flex; align-items: center; gap: 8px;
 }
+.profile-user-info p.user-email i { font-size: 1em; } 
 
-.show {
-    display: block;
+.profile-actions { margin-left: auto; flex-shrink: 0; }
+.profile-actions .button { padding: 10px 20px; font-size: 1rem; }
+
+/* --- Grid Inferior --- */
+.profile-details-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 30px; width: 100%;
 }
-
-/* Estilos para el contenido principal (main) */
-main.perfil {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: calc(100vh - 250px);
-    padding: 40px;
-    margin-top: 70px;
+.profile-card-section { /* Estilo base para tarjetas inferiores */
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); padding: 25px;
 }
-
-/* Contenedor del perfil (más grande) */
-.perfil-contenedor {
-    text-align: center;
-    background-color: white;
-    padding: 30px; /* Aumentado de 20px a 30px */
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px; /* Aumentado de 400px a 500px */
-    width: 100%;
+.profile-card-section h2, .profile-card-section h3 { 
+    color: var(--nekopixel-border-neon-pink); font-size: 1.5rem; margin: 0 0 20px 0;
+    padding-bottom: 10px; border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; align-items: center; gap: 10px; /* Para iconos */
 }
+.profile-card-section h2 i, .profile-card-section h3 i { font-size: 0.9em; }
 
-/* Estilos para la foto de perfil */
-.foto-perfil img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 4px solid #2c3e50;
-    margin-bottom: 20px;
+/* Estadísticas */
+.profile-stats-list { list-style: none; }
+.profile-stats-list li {
+    display: flex; justify-content: space-between; align-items: center; padding: 12px 0; 
+    border-bottom: 1px solid var(--nekopixel-input-dark); font-size: 1rem;
 }
+.profile-stats-list li:last-child { border-bottom: none; }
+.profile-stats-list strong { color: var(--nekopixel-text-medium); }
+.profile-stats-list span { color: var(--nekopixel-text-light); font-weight: bold; }
 
-/* Estilos para la información del usuario */
-.informacion-usuario h2 {
-    margin-bottom: 15px;
-    font-size: 24px;
-    color: #2c3e50;
+/* Comunidades */
+.communities-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 10px; }
+.communities-list li a { 
+    display: flex; align-items: center; gap: 10px; padding: 10px;
+    background-color: var(--nekopixel-input-dark); border-radius: 8px;
+    border: 1px solid var(--nekopixel-border-accent); color: var(--nekopixel-text-light);
+    text-decoration: none; transition: all 0.2s ease;
 }
-
-.informacion-usuario p {
-    margin: 10px 0;
-    font-size: 16px;
-    color: #555;
+.communities-list li a:hover {
+    background-color: #3A3A4A; border-color: var(--nekopixel-border-neon-blue);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
-
-.informacion-usuario strong {
-    color: #2c3e50;
+.communities-list .community-list-banner { 
+    width: 40px; height: 40px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: bold; color: white;
 }
+.communities-list .community-list-banner img { width: 100%; height: 100%; object-fit: cover; }
+.communities-list .community-list-banner[data-letter]::before { content: attr(data-letter); }
+.communities-list li span { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
+.profile-card-section p.no-communities { color: var(--nekopixel-text-medium); font-style: italic; }
 
-/* Estilos para el botón de eliminar cuenta */
-.eliminar-cuenta {
-    padding: 10px 20px;
-    background-color: #e74c3c; /* Rojo para indicar peligro */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+/* --- Eliminar Cuenta --- */
+.delete-account-section { 
+     background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-danger); 
+     border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+     padding: 25px; margin-top: 30px; text-align: center; grid-column: 1 / -1; 
 }
-
-.eliminar-cuenta:hover {
-    background-color: #c0392b; /* Rojo más oscuro al pasar el mouse */
+.delete-account-section h3 {
+     color: var(--nekopixel-danger); margin: 0 0 10px 0; font-size: 1.5rem;
+     border-bottom: 1px solid var(--nekopixel-border-accent); padding-bottom: 10px;
 }
+.delete-account-section p { color: var(--nekopixel-text-medium); margin-bottom: 20px; }
+.eliminar-cuenta.button { padding: 10px 20px; }
 
-/* Main */
-main {
-    margin-top: 90px; /* Espacio para el header fijo */
-    margin-bottom: 80px; /* Espacio para el footer fijo */
-    padding: 20px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.profile-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.profile-pic {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
-}
-
-.profile-header h1 {
-    font-size: 28px;
-    color: #333;
-}
-
-/* Estilos para el contenedor de comunidades */
-.communities {
-    max-width: 500px;
-    margin: -100px auto;
-    margin-top: -70px;
-    margin-bottom: 80px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.communities h2 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.communities ul {
-    list-style: none;
-    padding: 0;
-}
-
-.communities li {
-    margin-bottom: 10px;
-}
-
-.communities li a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.communities li a:hover {
-    text-decoration: underline;
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+    .profile-banner { height: 150px; } 
+    .profile-content-wrapper { padding: 0 15px 15px 15px; margin-top: -60px; }
+    .profile-header-card { flex-direction: column; align-items: center; padding: 15px; margin-bottom: 20px; }
+    .profile-avatar-container { margin-top: -70px; }
+    .profile-avatar-container .avatar-circle { width: 120px; height: 120px; font-size: 3.5rem; }
+    .profile-user-info { text-align: center; }
+    .profile-user-info h2 { font-size: 1.8rem; }
+    .profile-actions { margin-left: 0; margin-top: 15px; }
+    .profile-details-grid { grid-template-columns: 1fr; gap: 20px; }
+    .profile-card-section { padding: 20px; }
+    .delete-account-section { padding: 20px; margin-top: 20px; }
 }

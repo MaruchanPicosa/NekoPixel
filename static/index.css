@@ -1,271 +1,594 @@
-/* Estilos para el header */
+/* ==========================================================================
+   1. Variables Globales y Reset Básico
+   ========================================================================== */
+:root {
+    --nekopixel-bg-dark: #12121D;       
+    --nekopixel-card-dark: #1F1F2B;     
+    --nekopixel-input-dark: #2B2B3A;    
+    --nekopixel-text-light: #E0E0E0;    
+    --nekopixel-text-medium: #A0A0A0;   
+    --nekopixel-border-accent: #3A3A4A; 
+    --nekopixel-border-neon-blue: #00E5FF; 
+    --nekopixel-border-neon-pink: #FF00E5; 
+    --nekopixel-button-primary: #00E5FF; 
+    --nekopixel-button-hover: #00BFFF;   
+    --nekopixel-button-secondary: #3A3A4A; 
+    --nekopixel-transparent-dark: rgba(31, 31, 43, 0.9); 
+
+    /* Colores Avatares */
+    --avatar-color-1: #FF5733; --avatar-color-2: #33FF57; --avatar-color-3: #5733FF; 
+    --avatar-color-4: #FF33EC; --avatar-color-5: #33ECFF; --avatar-color-6: #FFDD33;
+}
+
+/* Reset básico */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: var(--nekopixel-bg-dark); 
+    color: var(--nekopixel-text-light); 
+    background-image: url('img/bg-neon.jpg'); 
+    background-size: cover; background-position: center center;
+    background-attachment: fixed; background-repeat: no-repeat;
+    overflow-x: hidden; overflow-y: auto; 
+    padding-top: 60px; padding-bottom: 40px;
+}
+
+/* Scrollbar global oscuro */
+::-webkit-scrollbar { width: 8px; background-color: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--nekopixel-text-medium); border-radius: 4px; }
+::-webkit-scrollbar-track { background-color: transparent; }
+
+/* ==========================================================================
+   2. Header y Footer (Fijos en Escritorio)
+   ========================================================================== */
+header, footer {
+    background-color: var(--nekopixel-card-dark); 
+    border-color: var(--nekopixel-border-accent); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); 
+    padding: 0 20px; 
+    position: fixed; left: 0; right: 0; z-index: 1000; box-sizing: border-box;
+}
 header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-bottom-width: 1px; border-bottom-style: solid; 
+    display: flex; justify-content: space-between; align-items: center;
+    top: 0; height: 60px; 
+}
+footer {
+    border-top-width: 1px; border-top-style: solid; 
+    color: var(--nekopixel-text-medium);
+    bottom: 0; height: 40px;
+    text-align: center; line-height: 40px; 
+    font-size: 0.8rem;
 }
 
-
-.search-bar {
-    flex-grow: 1;
-    margin: 0 20px;
-    text-align: center;
-}
-
-.search-bar input {
-    padding: 5px;
-    width: 50%;
-    max-width: 400px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.user-profile {
-    position: relative;
-    cursor: pointer;
-}
-
-.user-profile img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    right: 0;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-/* Estilos para el main */
+/* ==========================================================================
+   3. Layout Principal (Main - 3 columnas en Escritorio)
+   ========================================================================== */
 main {
+    display: flex; position: fixed; 
+    top: 60px; bottom: 40px; left: 0; right: 0;
+    /* --- AJUSTADO: Padding lateral reducido aún más --- */
+    padding: 20px 30px; /* Reducido de 40px a 30px */
+    box-sizing: border-box; gap: 25px; /* --- AJUSTADO: Mayor espacio entre columnas --- */ 
+    z-index: 1; 
+}
+main.index-layout { /* Añade esta clase a tu <main> en index.html */
     display: flex;
-    padding: 20px;
+    /* position: fixed; */ /* REMOVIDO - Main ya no es fixed */
+    /* top: 60px; bottom: 40px; left: 0; right: 0; */ /* REMOVIDO */
+    padding: 20px 30px; /* Padding reducido */
+    box-sizing: border-box; gap: 25px;
+    max-width: 1600px; /* Ancho máximo */
+    margin: 0 auto; /* Centrar */
+    align-items: flex-start; /* Para sticky */
+    min-height: calc(100vh - 100px); /* Altura mínima */
 }
 
+* Contenedores con scroll sticky */
+.sidebar-left-nav, .sidebar-right {
+    height: auto; /* Altura automática inicial */
+    max-height: calc(100vh - 100px); /* Altura max = viewport - header - footer */
+    overflow-y: auto;
+    position: sticky; /* Sticky */
+    top: 80px; /* 60px header + 20px padding main */
+    align-self: flex-start; /* Importante para sticky */
+    
+    box-sizing: border-box;
+    background-color: var(--nekopixel-card-dark);
+    border-radius: 12px; border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); padding: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--nekopixel-text-medium) transparent;
+}
+.sidebar-left-nav::-webkit-scrollbar, .sidebar-right::-webkit-scrollbar { width: 6px; }
+.sidebar-left-nav::-webkit-scrollbar-thumb, .sidebar-right::-webkit-scrollbar-thumb { background-color: var(--nekopixel-text-medium); border-radius: 3px;}
+.sidebar-left-nav::-webkit-scrollbar-track, .sidebar-right::-webkit-scrollbar-track { background: transparent; }
+
+.sidebar-left-nav { width: 220px; flex-shrink: 0; }
+.publicaciones { /* Columna Central */
+    flex-grow: 1; 
+    background-color: transparent; border: none; box-shadow: none;
+    padding: 0; /* Sin padding extra */
+    padding-right: 10px; /* Espacio scrollbar si fuera necesario (aunque ahora scroll es body) */
+    /* --- CORREGIDO: Quitar sticky/scroll --- */
+    /* height: 100%; overflow-y: auto; */ 
+    position: static; 
+    max-height: none; 
+    overflow-y: visible;
+    /* --- OPCIONAL: Limitar ancho --- */
+    /* max-width: 800px; */ 
+    /* margin: 0 auto; */
+}
+.sidebar-right { width: 300px; flex-shrink: 0; }
+
+/* Contenedores de scroll independientes */
+.sidebar-left-nav, .publicaciones, .sidebar-right {
+    height: 100%; overflow-y: auto; box-sizing: border-box;
+    background-color: var(--nekopixel-card-dark); 
+    border-radius: 12px; border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); padding: 20px;
+}
+.sidebar-left-nav { width: 220px; flex-shrink: 0; }
 .publicaciones {
-    flex-grow: 1;
-    margin-right: 20px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-grow: 1; /* Sigue ocupando el espacio restante */
+    background-color: transparent; border: none; box-shadow: none;
+    padding-right: 10px; /* Espacio scrollbar */
+    /* --- AJUSTADO: Quitamos el max-width para que se expanda --- */
+    /* max-width: 800px; */ 
+    margin: 0; /* Ya no necesita centrarse */
+}
+.sidebar-right { 
+    /* --- AJUSTADO: Ancho aumentado --- */
+    width: 300px; /* Aumentado de 250px a 300px */
+    flex-shrink: 0; 
 }
 
-.sidebar-right {
-    width: 300px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Pilares (Ocultos por defecto, visibles en escritorio > ~1400px) */
+.lightning-pillar {
+    display: none; position: fixed; top: 60px; bottom: 40px; 
+    width: 60px; 
+    z-index: 0; opacity: 0.7;
+    background: linear-gradient(to bottom, rgba(0,229,255,0.0), rgba(0,229,255,0.3), rgba(0,229,255,0.0));
+    box-shadow: 0 0 15px rgba(0,229,255,0.5);
+}
+.lightning-pillar.left { left: 0; }
+.lightning-pillar.right { right: 0; }
+/* --- AJUSTADO: Mostrar pilares en pantallas más anchas --- */
+@media (min-width: 1400px) { /* Aumentado de 1200px */
+    .lightning-pillar { display: block; }
+    /* Ajustamos el padding del main para los pilares */
+    main { padding: 20px 80px; } /* 60px de pilar + 20px de espacio */
+    header, footer { padding: 0 80px; } 
 }
 
 
-/* Estilos para el botón de publicar */
-.post-btn {
-    padding: 5px 15px;
-    background-color: #555;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
+/* ==========================================================================
+   4. Componentes Generales (Botones, Avatares, Dropdown, Inputs)
+   ========================================================================== */
+.logo { 
+    font-family: "Tiny5", sans-serif; 
+    color: #FFFFFF; 
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 15px rgba(255, 255, 255, 0.4); 
+    font-size: 1.8rem; cursor: pointer; text-decoration: none;
 }
+a.logo:hover { text-decoration: none; } 
 
-.post-btn:hover {
-    background-color: #777;
+.search-bar { flex-grow: 1; margin: 0 20px; text-align: center; }
+.search-bar input { 
+    background-color: var(--nekopixel-input-dark); border: 1px solid var(--nekopixel-border-accent);
+    color: var(--nekopixel-text-light); padding: 8px 15px; border-radius: 20px;
+    width: 100%; max-width: 400px; box-sizing: border-box;
 }
+.search-bar input::placeholder { color: var(--nekopixel-text-medium); }
 
-/* Estilos para el popup */
-.popup {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
+.button { 
+    border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;
+    transition: all 0.3s ease; font-size: 0.9rem; display: inline-block; text-align: center;
 }
-
-.popup-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
+.button-primary, .post-btn { 
+    background-color: var(--nekopixel-button-primary); color: var(--nekopixel-bg-dark); 
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5); 
 }
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+.button-primary:hover, .post-btn:hover { background-color: var(--nekopixel-button-hover); box-shadow: 0 0 15px rgba(0, 229, 255, 0.8); }
+.button-secondary { 
+    background-color: var(--nekopixel-button-secondary); color: var(--nekopixel-text-light);
 }
+.button-secondary:hover { background-color: #5A5A6A; }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
+.user-profile { position: relative; cursor: pointer; }
+.avatar-circle { 
+    width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: bold; color: white;
+    border: 2px solid var(--nekopixel-border-neon-blue); box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+    background-color: var(--nekopixel-input-dark); overflow: hidden;
 }
+.avatar-color-1 { background-color: var(--avatar-color-1); } .avatar-color-2 { background-color: var(--avatar-color-2); }
+.avatar-color-3 { background-color: var(--avatar-color-3); } .avatar-color-4 { background-color: var(--avatar-color-4); }
+.avatar-color-5 { background-color: var(--avatar-color-5); } .avatar-color-6 { background-color: var(--avatar-color-6); }
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-circle[data-letter]::before { content: attr(data-letter); text-shadow: 0 0 5px rgba(255,255,255,0.7); }
 
-.popup-content textarea,
-.popup-content input[type="text"],
-.popup-content input[type="url"] {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+.dropdown-content { 
+    display: none; position: absolute; right: 0; top: calc(100% + 5px); 
+    background-color: var(--nekopixel-card-dark); 
+    border: 1px solid var(--nekopixel-border-accent); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px; min-width: 160px; z-index: 1001;
 }
+.dropdown-content a { color: var(--nekopixel-text-light); padding: 10px 15px; text-decoration: none; display: block; font-size: 0.9rem; }
+.dropdown-content a:hover { background-color: var(--nekopixel-input-dark); color: var(--nekopixel-border-neon-blue); }
 
-.popup-content input[type="file"] {
-    margin: 10px 0;
+/* Inputs generales */
+textarea, input[type="text"], input[type="url"], input[type="file"], input[type="email"], input[type="password"] {
+    background-color: var(--nekopixel-input-dark); border: 1px solid var(--nekopixel-border-accent);
+    color: var(--nekopixel-text-light); padding: 12px; border-radius: 8px; font-size: 1rem;
+    width: 100%; box-sizing: border-box;
 }
+textarea { resize: vertical; min-height: 80px; }
+input::placeholder, textarea::placeholder { color: var(--nekopixel-text-medium); }
+label { color: var(--nekopixel-text-light); font-size: 0.9rem; display: block; margin-bottom: 5px; }
 
-/* Estilos para las publicaciones */
+/* ==========================================================================
+   5. Estilos Específicos (Sidebars, Publicaciones, Comentarios)
+   ========================================================================== */
+/* --- Nav Izquierdo --- */
+main.index-layout > .sidebar-left-nav ul { list-style: none; }
+main.index-layout > .sidebar-left-nav li { margin-bottom: 10px; }
+main.index-layout > .sidebar-left-nav span { flex-grow: 1; }
+
+/* --- Publicaciones --- */
 .publicacion {
-    background-color: white;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); margin-bottom: 20px; padding: 15px;
 }
-
+.publicacion p { color: var(--nekopixel-text-light); line-height: 1.6; margin: 15px 0; }
 .post-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    padding-bottom: 10px; margin-bottom: 0; display: flex; 
+    align-items: center; /* Alinear verticalmente */
+    border-bottom: 1px solid var(--nekopixel-border-accent);
+    /* Quitar position relative si los botones van abajo */
+    /* position: relative; */
+}
+.post-author-info { display: flex; align-items: center; gap: 10px; flex-grow: 1; margin-right: 10px; }
+.post-header .avatar-circle { width: 35px; height: 35px; font-size: 1rem; border-width: 1px; box-shadow: none; flex-shrink: 0; }
+.post-header strong { color: var(--nekopixel-border-neon-pink); font-size: 1.1rem; }
+.post-header > small:not(.post-data-timestamp) { /* Fecha */
+     color: var(--nekopixel-text-medium); font-size: 0.8rem; white-space: nowrap;
+     flex-shrink: 0;
+     /* Quitar margen derecho si botones van abajo */
+     /* margin-right: 75px; */
 }
 
-.post-header small {
-    color: #666;
+.post-text-content { cursor: pointer; margin-top: 15px; }
+.post-media-container {
+    border-radius: 8px; overflow: hidden;
+    /* --- CORREGIDO: Margen normal --- */
+    margin: 15px 0 0 0;
+    background-color: var(--nekopixel-bg-dark);
+    /* --- CORREGIDO: Restaurar max-height --- */
+    max-height: 500px;
+    cursor: pointer; position: relative;
 }
-
-.publicacion img,
-.publicacion video {
-    max-width: 100%;
-    margin: 10px 0;
-    border-radius: 4px;
+.post-media-container img, .post-media-container video {
+    width: 100%; display: block;
+    /* --- CORREGIDO: object-fit: contain y max-height --- */
+    object-fit: contain;
+    max-height: 500px; /* Debe coincidir con el contenedor */
 }
 
 .post-actions {
-    margin-top: 10px;
+    margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;
+    /* --- NUEVO: Alinear botones al centro verticalmente --- */
+    align-items: center;
+}
+.action-btn { /* Botones Like, Comentar, Editar, Eliminar */
+    background-color: var(--nekopixel-input-dark); color: var(--nekopixel-text-medium); border: 1px solid var(--nekopixel-border-accent);
+    padding: 8px 12px; border-radius: 20px; transition: all 0.2s ease; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.action-btn i { font-size: 0.9em; line-height: 1; }
+.action-btn:hover { background-color: #3A3A4A; color: var(--nekopixel-border-neon-blue); border-color: var(--nekopixel-border-neon-blue); }
+/* Hover específico para botones Like/Delete (dentro de form) */
+.post-actions form > .action-btn:hover { color: var(--nekopixel-border-neon-pink); border-color: var(--nekopixel-border-neon-pink); }
+/* Estilos específicos para Editar/Eliminar (si son botones directos, no forms) */
+.post-actions > .action-btn.edit-btn:hover {
+     background-color: #5A5A6A; /* Ejemplo */
+     color: #ffc107; /* Amarillo */
+     border-color: #ffc107;
+}
+.post-actions > .action-btn.delete-btn { /* Asumiendo clase 'delete-btn' */
+    color: var(--nekopixel-danger);
+    border-color: var(--nekopixel-danger);
+}
+.post-actions > .action-btn.delete-btn:hover {
+     background-color: var(--nekopixel-danger);
+     color: white;
+     box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
 }
 
-.action-btn {
-    background: none;
-    border: none;
-    color: #333;
-    cursor: pointer;
-    margin-right: 15px;
-    font-size: 14px;
+
+/* --- Nav Izquierdo --- */
+.sidebar-left-nav ul { list-style: none; }
+.sidebar-left-nav li { margin-bottom: 10px; }
+.sidebar-left-nav a {
+    display: flex; align-items: center; gap: 15px; padding: 12px 15px; color: var(--nekopixel-text-light);
+    text-decoration: none; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 1rem; font-weight: bold;
+}
+.sidebar-left-nav a i { font-size: 1.2rem; color: var(--nekopixel-text-medium); width: 20px; text-align: center; transition: color 0.2s ease; }
+.sidebar-left-nav a:hover { background-color: var(--nekopixel-input-dark); color: var(--nekopixel-border-neon-pink); }
+.sidebar-left-nav a:hover i { color: var(--nekopixel-border-neon-pink); }
+.sidebar-left-nav span { /* Texto del nav */
+    flex-grow: 1; /* Ocupa espacio restante */
 }
 
-.action-btn:hover {
-    text-decoration: underline;
+/* --- Publicaciones --- */
+.publicacion {
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); margin-bottom: 20px; 
+    /* --- AJUSTADO: Padding interno reducido --- */
+    padding: 15px; 
 }
-
-.comments {
-    margin-top: 10px;
+.publicacion p { color: var(--nekopixel-text-light); line-height: 1.6; margin: 15px 0; }
+.post-header { 
+    padding-bottom: 10px; margin-bottom: 0; 
+    display: flex; justify-content: space-between; align-items: center; 
+    border-bottom: 1px solid var(--nekopixel-border-accent);
 }
+.post-author-info { 
+    display: flex; align-items: center; gap: 10px;
+}
+.post-header .avatar-circle { width: 35px; height: 35px; font-size: 1rem; border-width: 1px; box-shadow: none; }
+.post-header strong { color: var(--nekopixel-border-neon-pink); font-size: 1.1rem; }
+.post-header > small:not(.post-data-timestamp) { /* Fecha */
+     color: var(--nekopixel-text-medium); 
+     font-size: 0.8rem; white-space: nowrap;
+}
+.post-text-content { cursor: pointer; margin-top: 15px; } 
+.post-media-container {
+    border-radius: 8px; overflow: hidden; margin: 15px -15px 0 -15px; /* --- AJUSTADO: Negativo para que toque bordes --- */
+    background-color: var(--nekopixel-bg-dark); 
+    /* border: 1px solid var(--nekopixel-border-accent); */ /* Quitar borde si toca los bordes */
+    max-height: 500px; cursor: pointer; position: relative;
+}
+.post-media-container img, .post-media-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-actions { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+.action-btn { 
+    background-color: var(--nekopixel-input-dark); color: var(--nekopixel-text-medium); border: 1px solid var(--nekopixel-border-accent);
+    padding: 8px 12px; border-radius: 20px; transition: all 0.2s ease; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+    display: inline-flex; align-items: center; gap: 5px; 
+}
+.action-btn i { font-size: 0.9em; } 
+.action-btn:hover { background-color: #3A3A4A; color: var(--nekopixel-border-neon-blue); border-color: var(--nekopixel-border-neon-blue); }
+.post-actions form button.action-btn:hover { color: var(--nekopixel-border-neon-pink); border-color: var(--nekopixel-border-neon-pink); }
+.comments { margin-top: 20px; border-top: 1px solid var(--nekopixel-border-accent); padding-top: 15px; }
+.comments form { display: flex; gap: 10px; margin-bottom: 15px; }
+.comments form input { flex-grow: 1; border-radius: 20px; padding: 10px 15px; }
 
+.comments form button { 
+    background-color: var(--nekopixel-button-primary); color: var(--nekopixel-bg-dark); 
+    border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;
+    transition: all 0.3s ease; font-size: 0.9rem; 
+}
 .comment {
-    border-top: 1px solid #eee;
-    padding: 10px 0;
+    background-color: var(--nekopixel-input-dark); border-radius: 8px; padding: 10px 15px; margin-top: 10px;
+    border: 1px solid var(--nekopixel-border-accent); display: flex; justify-content: space-between; align-items: flex-start;
+    line-height: 1.4; 
 }
-
-.comment small {
-    color: #666;
-    display: block;
+.comment > div { flex-grow: 1; } 
+.comment strong { 
+    color: var(--nekopixel-border-neon-blue); display: inline; 
+    margin-right: 5px; margin-bottom: 0; 
 }
+.comment small { color: var(--nekopixel-text-medium); font-size: 0.8rem; display: block; margin-top: 5px; }
+.comment .edit-btn, 
+.comment .delete-btn { 
+     padding: 5px 8px; /* Tamaño más pequeño */
+     font-size: 0.8rem; 
+     min-height: unset; /* Quita altura mínima si la hereda */
+     line-height: 1; /* Alineación vertical del icono/texto */
+     /* Heredan colores/bordes de .button-secondary y .button-danger */
+}
+.comment .delete-btn:hover { background-color: var(--nekopixel-danger); color: white; border-color: var(--nekopixel-danger);
+}
+.comment .edit-btn:hover { background-color: #5A5A6A; }
 
+/* --- Sidebar Derecho (Comunidades) --- */
+.sidebar-right h3 {
+    color: var(--nekopixel-border-neon-pink); border-bottom: 1px solid var(--nekopixel-border-accent);
+    padding-bottom: 10px; margin-top: 0; font-size: 1.3rem; display: flex; justify-content: space-between; align-items: center;
+}
+.sidebar-right h3 i { font-size: 1rem; color: var(--nekopixel-text-medium); cursor: pointer; }
+.sidebar-right h3 i:hover { color: var(--nekopixel-border-neon-pink); }
+.sidebar-right .search-community-bar { margin-bottom: 15px; }
+.sidebar-right .search-community-bar input { border-radius: 20px; padding: 10px 15px; }
+.sidebar-right .create-community-btn { width: 100%; font-size: 1rem; margin-bottom: 15px; }
+.community-list { list-style: none; padding: 0; margin-top: 0; }
+.community-list li { margin-bottom: 10px; }
+.community-card {
+    display: flex; align-items: center; gap: 15px; padding: 10px; background-color: var(--nekopixel-input-dark); 
+    border-radius: 10px; border: 1px solid var(--nekopixel-border-accent); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: var(--nekopixel-text-light); text-decoration: none; transition: all 0.2s ease;
+}
+.community-card:hover { background-color: #3A3A4A; border-color: var(--nekopixel-border-neon-pink); box-shadow: 0 0 10px rgba(255, 0, 229, 0.5); }
+.community-banner-thumbnail {
+    width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 1.5rem; font-weight: bold; color: white; border: none;
+}
+.community-banner-thumbnail img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.community-banner-thumbnail[data-letter]::before { content: attr(data-letter); }
+.community-info { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
+.community-info strong { font-size: 1.1rem; color: var(--nekopixel-border-neon-blue); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.community-info small { font-size: 0.85rem; color: var(--nekopixel-text-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================================================
+   6. Popups y Modales (Estilos FUNCIONALES y Unificados)
+   ========================================================================== */
+
+/* --- Popup Base --- */
 .popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(18, 18, 29, 0.9); overflow: auto; 
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; 
+    display: flex; justify-content: center; align-items: center; padding: 20px; 
+}
+.popup.active { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
+.popup-content { /* Caja popups pequeños */
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); border-radius: 10px; 
+    margin: auto; width: 90%; max-width: 500px; position: relative; padding: 0; overflow: hidden;
+    transform: translateY(-20px) scale(0.95); transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+}
+.popup.active .popup-content { transform: translateY(0) scale(1); }
+.popup-header {
+    background-color: var(--nekopixel-bg-dark); padding: 15px 25px; border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.popup-header h2 { color: var(--nekopixel-border-neon-pink); margin: 0; font-size: 1.25rem; }
+.popup-header .close { color: #aaa; position: static; font-size: 32px; font-weight: bold; cursor: pointer; padding: 0; line-height: 1; background: none; border: none; }
+.popup-header .close:hover { color: white; }
+.popup-body { padding: 25px; }
+.popup-body form { display: flex; flex-direction: column; gap: 15px; }
+.popup-body label { margin-bottom: -5px; } 
+
+/* --- Modal de Publicación --- */
+#postModal.popup { padding: 0; }
+.modal-wrapper { 
+    display: flex; width: 90%; max-width: 1400px; height: 90vh; background-color: transparent; 
+    border-radius: 12px; position: relative; border: 3px solid var(--nekopixel-border-neon-blue); 
+    box-shadow: 0 0 25px var(--nekopixel-border-neon-blue), 0 0 40px rgba(0, 229, 255, 0.4);
+    overflow: hidden; margin: auto; 
+    transform: scale(0.95); opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+}
+#postModal.popup.active .modal-wrapper { transform: scale(1); opacity: 1; }
+#postModal .close { 
+    color: var(--nekopixel-white-card); top: 15px; right: 25px; font-size: 40px; z-index: 10;
+    position: absolute; cursor: pointer; background: none; border: none;
+}
+.modal-post-container { 
+    flex: 3; display: flex; justify-content: center; align-items: center; padding: 20px; overflow: hidden;
+    cursor: zoom-in; background-color: var(--nekopixel-bg-dark); 
+}
+.modal-post-container.zoomed-in { cursor: zoom-out; }
+.modal-post-container img, .modal-post-container video {
+    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: transform 0.3s ease;
+}
+.modal-post-container .modal-text-only { font-size: 1.5rem; color: white; padding: 30px; text-align: center; }
+.modal-sidebar { 
+    flex: 1; min-width: 350px; padding: 20px; background-color: var(--nekopixel-transparent-dark); 
+    color: var(--nekopixel-light-bg); border-left: 1px solid var(--nekopixel-border-accent);
+    display: flex; flex-direction: column; overflow-y: auto;
+}
+#modal-post-header {
+    display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--nekopixel-border-accent);
+    padding-bottom: 15px;
+}
+#modal-post-header .avatar-circle { border-width: 1px; box-shadow: none; width: 35px; height: 35px; font-size: 1rem; }
+#modal-post-header strong { font-size: 1.1rem; color: var(--nekopixel-border-neon-pink); }
+#modal-post-header small { color: var(--nekopixel-text-medium); font-size: 0.8rem; margin-right: 50px;}
+#modal-post-body { padding: 15px 0; color: white; line-height: 1.6; }
+#modal-post-body a { color: var(--nekopixel-border-neon-blue); word-break: break-all; }
+#modal-post-actions {
+    padding: 10px 0; border-top: 1px solid var(--nekopixel-border-accent); border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; gap: 10px; flex-wrap: wrap;
+}
+#modal-post-actions .action-btn { color: var(--nekopixel-text-medium); border-color: var(--nekopixel-border-accent); }
+#modal-post-actions .action-btn:hover { color: var(--nekopixel-border-neon-blue); border-color: var(--nekopixel-border-neon-blue); }
+#modal-post-comments { flex-grow: 1; padding-top: 15px; }
+#modal-post-comments h3 { color: var(--nekopixel-border-neon-pink); margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--nekopixel-border-accent); font-size: 1.2rem; }
+#modal-post-comments .comment .comment-actions { 
+      flex-shrink: 0; display: flex; gap: 8px; margin-left: auto; 
+}
+#modal-post-comments .comment strong { margin-right: 5px; display: inline; color: var(--nekopixel-border-neon-blue); } 
+#modal-post-comments .comment small { color: var(--nekopixel-text-medium); font-size: 0.8rem; display: block; margin-top: 5px; }
+
+#modalCommentForm { /* Formulario al final del sidebar */
+    display: flex; margin-top: auto; /* Empuja al final */ 
+    gap: 10px; flex-shrink: 0; padding-top: 15px; 
+    border-top: 1px solid var(--nekopixel-border-accent); 
+}
+#modalCommentForm input { 
+    flex-grow: 1; background: var(--nekopixel-input-dark); border-radius: 20px; padding: 10px 15px; 
+}
+#modalCommentForm button { 
+    border-radius: 20px; padding: 0 15px; flex-shrink: 0; 
+    /* Hereda .button .button-primary */
+}
+/* ==========================================================================
+   7. Media Queries (Responsividad)
+   ========================================================================== */
+
+/* --- Tablet (~1024px e inferiores) --- */
+@media (max-width: 1024px) {
+    body { padding-top: 60px; padding-bottom: 40px; } 
+    main { 
+        position: fixed; 
+        padding: 15px 15px 15px 85px; gap: 15px; /* Ajustar padding izquierdo */ 
+        left: 0; right: 0; top: 60px; bottom: 40px;
+    }
+    .sidebar-left-nav { width: 60px; padding: 15px 10px; }
+    .sidebar-left-nav span { display: none; } 
+    .sidebar-left-nav a { justify-content: center; gap: 0; padding: 10px; }
+    .sidebar-left-nav a i { width: auto; font-size: 1.4rem; } 
+    .sidebar-right { width: 200px; }
+    header, footer { padding: 0 15px; }
+    .lightning-pillar { display: none; } 
+    .publicaciones { max-width: none; margin: 0; } 
 }
 
-.popup-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    position: relative;
+/* --- Móvil (~768px e inferiores) --- */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto; 
+        padding-top: 50px; /* Header más pequeño */
+        padding-bottom: 60px; /* Espacio para nav inferior */
+    }
+    header { height: 50px; padding: 0 10px; }
+    header .logo { font-size: 1.5rem; }
+    .search-bar { display: none; } 
+    .user-profile .avatar-circle { width: 30px; height: 30px; font-size: 1rem; border-width: 1px; box-shadow: none; }
+
+    main {
+        position: static; flex-direction: column; padding: 10px; height: auto;
+    }
+    .sidebar-left-nav { display: none; } 
+
+    .publicaciones, .sidebar-right {
+        width: 100%; height: auto; overflow-y: visible; margin-bottom: 15px; padding: 15px;
+    }
+    .publicaciones { padding-right: 15px; } 
+
+    /* Sidebar derecho como desplegable (Opcional con JS) */
+    .sidebar-right { /* ... (estilos si lo haces desplegable) ... */ }
+
+    footer { 
+        height: 60px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px;
+    }
+    footer p { display: none; } 
+    footer a.footer-icon { color: var(--nekopixel-text-medium); font-size: 1.5rem; text-decoration: none; }
+    footer a.footer-icon:hover { color: var(--nekopixel-border-neon-pink); }
+
+    /* Modal en móvil */
+    #postModal.popup { padding: 5px; align-items: flex-start; }
+    .modal-wrapper {
+        flex-direction: column; width: 100%; height: auto; 
+        max-height: 95vh; 
+        border: none; box-shadow: none; border-radius: 0; margin: auto 0; 
+        overflow: hidden; 
+    }
+    .modal-post-container { 
+        flex: 0 1 auto; 
+        max-height: 50vh; border-radius: 0; padding: 10px; 
+        min-height: 150px; 
+    }
+    .modal-sidebar { 
+        flex: 1 1 auto; 
+        min-width: unset; border-left: none; border-top: 1px solid var(--nekopixel-border-accent); 
+        border-radius: 0; padding: 15px; 
+        max-height: calc(95vh - 150px); /* Altura restante aprox */
+    }
+    #postModal .close { top: 5px; right: 10px; font-size: 30px; }
+
+    .lightning-pillar { display: none; } 
 }
 
-.close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.button, .action-btn {
-    padding: 8px 16px;
-    margin: 5px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.button:hover, .action-btn:hover {
-    background-color: #0056b3;
-}
-
-.sidebar-right {
-    padding: 20px;
-}
-
-.create-community-btn {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 15px;
-}
-
-.create-community-btn:hover {
-    background-color: #218838;
-}
-
-.sidebar-right ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar-right li {
-    margin-bottom: 10px;
-}

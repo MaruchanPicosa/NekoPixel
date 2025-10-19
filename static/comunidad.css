@@ -1,367 +1,434 @@
-/* Estilos para el banner */
-.community-banner {
-    width: 100%;
-    margin-top: 60px; /* Espacio para el header fijo */
+/* ==========================================================================
+   COMUNIDAD STYLES (v5 - Dark/Neon - Standalone with Popups & Fixes)
+   ========================================================================== */
+
+/* --- Layout Principal --- */
+/* Body hereda estilos base de styles.css */
+/* Main específico para esta página */
+main.community-page { 
+    display: flex; 
+    padding: 0 30px 30px 30px; /* Padding ajustado */
+    gap: 25px; 
+    max-width: 1600px; 
+    margin: 0 auto; /* Centrar contenido */
+    align-items: flex-start; /* Clave para sticky */
 }
 
-.community-banner img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+/* --- Banner --- */
+.community-banner-container { 
+    width: 100%; height: 300px; 
+    background-color: var(--nekopixel-input-dark); 
+    background-image: url('../img/default-banner.jpg'); /* Fallback */
+    background-size: cover; background-position: center center;
+    position: relative; 
+    border-bottom: 2px solid var(--nekopixel-border-neon-pink); 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    /* Asegurar que el padding-top del body no lo tape */
+    margin-top: -60px; /* Compensa el padding-top del body */
+}
+.community-banner-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.change-community-banner-button { 
+    position: absolute; bottom: 15px; right: 15px;
+    background-color: rgba(31, 31, 43, 0.8); color: var(--nekopixel-text-light);
+    border: 1px solid var(--nekopixel-border-accent); padding: 8px 15px;
+    border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+    /* Reutiliza estilos base .button .button-secondary implícitamente */
+}
+.change-community-banner-button:hover {
+    background-color: var(--nekopixel-card-dark); color: var(--nekopixel-border-neon-blue);
+    border-color: var(--nekopixel-border-neon-blue); box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+#community_banner_input { display: none; } 
+
+/* --- Cabecera Comunidad (Nombre y Botones) --- */
+.community-header { 
+    background-color: var(--nekopixel-card-dark); padding: 20px 30px;
+    margin: -50px auto 30px auto; max-width: 900px; 
+    border-radius: 12px; border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 2;
+}
+.community-header h1 {
+    color: var(--nekopixel-border-neon-pink); font-size: 2rem; margin: 0;
+    text-shadow: 0 0 8px rgba(255, 0, 229, 0.5);
+}
+.community-actions .button { /* Botones Unirse/Salir/Config */
+    padding: 10px 20px; font-size: 1rem; flex-shrink: 0; 
+}
+.community-settings-btn { /* Botón Rueda Configuración */
+    background-color: var(--nekopixel-button-secondary);
+    color: var(--nekopixel-text-light);
+    padding: 10px 15px; 
+}
+.community-settings-btn:hover { background-color: #5A5A6A; color: var(--nekopixel-border-neon-pink); }
+.leave-btn { background-color: var(--nekopixel-button-secondary); color: var(--nekopixel-text-light); }
+.leave-btn:hover { background-color: var(--nekopixel-danger); color: white; }
+
+
+/* --- Layout de 3 Columnas (Sticky Sidebars) --- */
+.sidebar-left, .sidebar-right {
+    width: 280px; flex-shrink: 0; position: sticky; 
+    /* --- AJUSTADO: Top considera padding de main + header --- */
+    top: calc(60px + 20px); /* 60px header + 20px padding main */
+    max-height: calc(100vh - 60px - 40px - 40px); /* viewport - header - footer - 2*padding main */
+    overflow-y: auto; 
+    background-color: var(--nekopixel-card-dark); 
+    border-radius: 12px; border: 1px solid var(--nekopixel-border-accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); padding: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--nekopixel-text-medium) transparent;
+}
+.sidebar-left::-webkit-scrollbar, .sidebar-right::-webkit-scrollbar { width: 6px; }
+.sidebar-left::-webkit-scrollbar-thumb, .sidebar-right::-webkit-scrollbar-thumb { background-color: var(--nekopixel-text-medium); border-radius: 3px;}
+.sidebar-left::-webkit-scrollbar-track, .sidebar-right::-webkit-scrollbar-track { background: transparent; }
+
+.sidebar-left h3, .sidebar-right h3 { 
+    color: var(--nekopixel-border-neon-blue); font-size: 1.3rem; 
+    margin: 0 0 20px 0; padding-bottom: 10px;
+    border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; align-items: center; gap: 10px;
+}
+.sidebar-left h3 i, .sidebar-right h3 i { font-size: 1em; }
+
+/* Lista Miembros */
+.members-list { list-style: none; }
+.members-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; position: relative; }
+.members-list .avatar-circle { width: 35px; height: 35px; font-size: 1rem; flex-shrink: 0; border: none; box-shadow: none; }
+.members-list span { color: var(--nekopixel-text-light); font-weight: bold; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.members-list .member-actions { margin-left: auto; } 
+.members-list .delete-btn.button { padding: 3px 8px; font-size: 0.8rem; min-height: unset; line-height: 1; }
+
+/* Información */
+.community-info-details p { margin-bottom: 12px; font-size: 0.95rem; color: var(--nekopixel-text-light); line-height: 1.5; }
+.community-info-details strong { color: var(--nekopixel-text-medium); margin-right: 8px; min-width: 80px; display: inline-block; }
+.community-info-details .tags span { 
+    display: inline-block; background-color: var(--nekopixel-input-dark);
+    color: var(--nekopixel-border-neon-blue); padding: 3px 8px; border-radius: 15px;
+    margin: 0 5px 5px 0; font-size: 0.8rem;
+}
+.community-info-details p.no-tags { color: var(--nekopixel-text-medium); font-style: italic; }
+
+
+/* --- Publicaciones (Centro) --- */
+section.publicaciones {
+   flex-grow: 1; /* Sigue ocupando el espacio disponible */
+    background-color: transparent; border: none; box-shadow: none;
+    padding: 0; 
+    overflow-y: visible; /* Scroll natural */
+    max-height: none; /* Sin altura máxima */
+    position: static; 
+
+    /* --- RESTAURAR ESTAS LÍNEAS --- */
+    max-width: 800px; /* O el valor que tenías antes (ej. 800px) */
+    margin: 0 auto; /* Centrar la columna si tiene max-width */
+    /* --- FIN DE LÍNEAS RESTAURADAS --- */
+
 }
 
-/* Estilos para el nombre de la comunidad */
-.community-name {
-    text-align: center;
-    padding: 20px 0;
-}
-
-.community-name .name-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px; /* Espacio entre el nombre y el botón */
-}
-
-.community-name h1 {
-    font-size: 32px;
-    color: #333;
-    margin: 0; /* Elimina márgenes por defecto para mejor alineación */
-}
-
-.join-form {
-    display: inline-block; /* Para que el formulario se comporte como un elemento en línea */
-}
-
-.join-btn {
-    padding: 8px 16px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.join-btn:hover {
-    background-color: #218838;
-}
-
-/* Diseño en tres columnas */
-.community-layout {
-    display: flex;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px 40px;
-    justify-content: space-between;
-}
-
-/* Sidebar izquierdo (miembros) */
-.sidebar-left {
-    width: 250px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-right: 40px;
-}
-
-.sidebar-left h3 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.sidebar-left ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar-left li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.member-pic {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-}
-
-.sidebar-left span {
-    color: #555;
-}
-
-/* Publicaciones (centro) */
-.publicaciones {
-    flex-grow: 1;
-    max-width: 700px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
+/* Estilos de Posts (Reutilizados de styles.css base y ajustados) */
 .publicacion {
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: var(--nekopixel-card-dark); border: 1px solid var(--nekopixel-border-accent);
+    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); margin-bottom: 20px; padding: 15px; 
 }
-
-.post-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.post-header small {
-    color: #666;
-}
-
-.publicacion img,
-.publicacion video {
-    max-width: 100%;
-    margin: 10px 0;
-    border-radius: 4px;
-}
-
-.post-actions {
-    margin-top: 10px;
-}
-
-.action-btn {
-    padding: 5px 10px;
-    margin-right: 5px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.action-btn:hover {
-    background-color: #0056b3;
-}
-
-.comments {
-    margin-top: 10px;
-}
-
-.comment {
-    border-top: 1px solid #eee;
-    padding: 10px 0;
-}
-
-.comment small {
-    color: #666;
-}
-
-/* Sidebar derecho (información) */
-.sidebar-right {
-    width: 250px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-left: 40px;
-}
-
-.sidebar-right h3 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.sidebar-right p {
-    margin: 10px 0;
-    color: #555;
-}
-
-.sidebar-right strong {
-    color: #333;
-}
-
-/* Estilos para el header */
-header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}
-
-
-.search-bar {
-    flex-grow: 1;
-    margin: 0 20px;
-    text-align: center;
-}
-
-.search-bar input {
-    padding: 5px;
-    width: 50%;
-    max-width: 400px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.user-profile {
-    position: relative;
-    cursor: pointer;
-}
-
-.user-profile img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    right: 0;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-/* Main con espacio para el footer */
-main {
-    margin-bottom: 60px; /* Espacio suficiente para que el footer no tape el contenido */
-    min-height: calc(100vh - 120px); /* Asegura que el main ocupe al menos la altura de la pantalla menos header y footer */
-}
-
-
-/* Estilos para el popup */
-.popup {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.popup-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+.publicacion p { color: var(--nekopixel-text-light); line-height: 1.6; margin: 15px 0; }
+.action-btn { 
+    background-color: var(--nekopixel-input-dark); 
+    color: var(--nekopixel-text-medium); 
+    border: 1px solid var(--nekopixel-border-accent);
+    padding: 8px 12px; 
+    border-radius: 20px; 
+    transition: all 0.2s ease; 
+    cursor: pointer; 
+    font-size: 0.9rem; 
     font-weight: bold;
-    cursor: pointer;
+    display: inline-flex; /* Para alinear icono y texto */
+    align-items: center; 
+    gap: 5px; /* Espacio entre icono y texto */
+    /* Hereda .button si es necesario, pero estas son las específicas */
+}
+/* Estilo para los iconos dentro de los botones */
+.action-btn i { 
+    font-size: 0.9em; 
+    line-height: 1; /* Ayuda a alinear verticalmente */
+} 
+
+/* Efecto hover general para action-btn */
+.action-btn:hover { 
+    background-color: #3A3A4A; 
+    color: var(--nekopixel-border-neon-blue); 
+    border-color: var(--nekopixel-border-neon-blue); 
 }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
+/* Efecto hover específico para botones dentro de un form (como Like) */
+.post-actions form button.action-btn:hover { 
+    color: var(--nekopixel-border-neon-pink); 
+    border-color: var(--nekopixel-border-neon-pink); 
+}
+/* --- Estilos de Posts --- */
+.post-header {
+    display: flex; 
+    position: relative; /* Contexto para fecha y acciones admin */
+    margin-bottom: 10px; 
+    align-items: center; /* Alinear verticalmente */
+    gap: 10px; 
+}
+.post-author-info { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    /* --- AJUSTADO: Evitar que crezca demasiado --- */
+    flex-grow: 1; 
+    margin-right: 10px; /* Espacio antes de la fecha */
+}
+/* La fecha (ocupa espacio y se alinea con el nombre) */
+.post-header > small:not(.post-data-timestamp) { 
+    color: var(--nekopixel-text-medium); 
+    font-size: 0.8rem; 
+    white-space: nowrap; 
+    /* --- AJUSTADO: Margen para separar de botones admin --- */
+    margin-right: 70px; /* Ajusta este valor si es necesario */
+    /* Alinear verticalmente con el nombre (aproximado) */
+    line-height: 1.5; /* Ajustar si el nombre es más alto */
+    padding-top: 5px; /* Bajar un poco si es necesario */
+    flex-shrink: 0; /* Evitar que se encoja */
 }
 
-.popup-content textarea,
-.popup-content input[type="text"],
-.popup-content input[type="url"] {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+/* Admin Post Actions (Edit/Delete en el Feed) */
+.post-actions-admin { 
+    display: flex; 
+    gap: 8px; 
+    position: absolute; 
+    /* --- AJUSTADO: Alinear con la parte SUPERIOR DERECHA --- */
+    top: 10px; /* Bajar un poco desde arriba */
+    right: 0px; 
+}
+.post-actions-admin .button { padding: 5px 8px; font-size: 0.8rem; min-height: unset; line-height: 1; border-radius: 6px; }
+.post-actions-admin .edit-btn { background-color: #ffc107; color: #333; } 
+.post-actions-admin .edit-btn:hover { background-color: #e0a800; }
+.post-actions-admin .delete-btn { background-color: var(--nekopixel-danger); color: white; } 
+.post-actions-admin .delete-btn:hover { background-color: #c82333; }
+
+.post-text-content { cursor: pointer; margin-top: 15px; } 
+
+.post-media-container {
+    border-radius: 8px; overflow: hidden; 
+    /* --- CORREGIDO: Quitar márgenes negativos, volver al margen normal --- */
+    margin: 15px 0 0 0; /* Margen superior normal */
+    background-color: var(--nekopixel-bg-dark); 
+    /* --- RESTAURADO: max-height --- */
+    max-height: 500px; /* O el valor que prefieras */
+    cursor: pointer; position: relative;
+    /* Quitar borde si se ve mal con max-height */
+    /* border: 1px solid var(--nekopixel-border-accent); */ 
+}
+.post-media-container img, .post-media-container video { 
+    width: 100%; 
+    /* --- CORREGIDO: object-fit: contain para que se vea completa --- */
+    /* height: 100%; */ /* Quitar height 100% */
+    object-fit: contain; /* Mostrar imagen/video completo dentro del contenedor */
+    display: block; 
+    max-height: 500px; /* Asegurar que no exceda el contenedor */
 }
 
-.popup-content input[type="file"] {
-    margin: 10px 0;
+.comments { 
+    margin-top: 20px; 
+    border-top: 1px solid var(--nekopixel-border-accent); 
+    padding-top: 15px;
+    display: flex; 
+    justify-content: space-between; 
+    /* --- AJUSTADO: Alinear al CENTRO verticalmente --- */
+    align-items: center; 
+    line-height: 1.4; 
+}
+.comments form { display: flex; gap: 10px; margin-bottom: 15px; }
+.comments form input { flex-grow: 1; border-radius: 20px; padding: 10px 15px; }
+.comments form button { border-radius: 20px; padding: 0 15px; flex-shrink: 0; }
+.comment {
+    background-color: var(--nekopixel-input-dark); border-radius: 8px; padding: 10px 15px; margin-top: 10px;
+    border: 1px solid var(--nekopixel-border-accent); display: flex; justify-content: space-between; align-items: flex-start; line-height: 1.4; 
+}
+.comment > div:first-child { flex-grow: 1; margin-right: 15px; /* --- AJUSTADO: Más margen --- */ } 
+.comment strong { color: var(--nekopixel-border-neon-blue); display: inline; margin-right: 5px; margin-bottom: 0; }
+.comment small { color: var(--nekopixel-text-medium); font-size: 0.8rem; display: block; margin-top: 5px; }
+.comment .comment-actions { 
+    flex-shrink: 0; 
+    display: flex; 
+    /* --- AJUSTADO: Alinear botones al centro verticalmente --- */
+    align-items: center; 
+    gap: 8px; 
+    margin-left: auto; 
+}
+.comment .edit-btn, 
+.comment .delete-btn { 
+     padding: 5px 8px; /* Tamaño más pequeño */
+     font-size: 0.8rem; 
+     min-height: unset; /* Quita altura mínima si la hereda */
+     line-height: 1; /* Alineación vertical del icono/texto */
+     /* Heredan colores/bordes de .button-secondary y .button-danger */
 }
 
-/* Estilos para el botón de publicar */
-.post-btn {
-    padding: 5px 15px;
-    background-color: #555;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
+/* ==========================================================================
+   6. Popups y Modales (AHORA DENTRO de comunidad.css)
+   ========================================================================== */
+
+/* --- Popup Base (Estilos base deben estar en styles.css) --- */
+/* (Asegúrate que .popup, .popup-content, etc. base estén en styles.css) */
+
+/* --- Popup Editar Comentario (Mayor z-index) --- */
+div[id^="editCommentPopupCommunity-"].popup { 
+    z-index: 1003; /* Encima del modal */
 }
 
-.post-btn:hover {
-    background-color: #777;
+/* --- Popup Configuración Comunidad --- */
+#communitySettingsPopup .popup-header h2 { color: var(--nekopixel-border-neon-blue); } 
+#communitySettingsPopup .delete-community-button { 
+     margin-top: 20px; width: 100%; 
+     /* Hereda estilos .button y .button-danger */
 }
 
-/* Estilos para el botón de unirse */
-.join-btn {
-    padding: 10px 20px;
-    background-color: #111e8f; /* Verde para indicar acción positiva */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
+/* --- Modal de Publicación --- */
+#postModal.popup { 
+    padding: 0; 
+    z-index: 1002; /* z-index intermedio */
+}
+.modal-wrapper { 
+    display: flex; width: 90%; max-width: 1400px; height: 90vh; background-color: transparent; 
+    border-radius: 12px; position: relative; border: 3px solid var(--nekopixel-border-neon-blue); 
+    box-shadow: 0 0 25px var(--nekopixel-border-neon-blue), 0 0 40px rgba(0, 229, 255, 0.4);
+    overflow: hidden; margin: auto; 
+    transform: scale(0.95); opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+}
+#postModal.popup.active .modal-wrapper { transform: scale(1); opacity: 1; }
+
+#postModal .close { 
+    color: var(--nekopixel-white-card); 
+    /* --- AJUSTADO: Más arriba y a la derecha --- */
+    top: 10px; 
+    right: 15px; 
+    font-size: 35px; /* Un poco más pequeño */
+    z-index: 10;
+    position: absolute; cursor: pointer; background: none; border: none;
+    line-height: 1; /* Asegurar alineación */
+    padding: 5px; /* Área clickeable */
+}
+.modal-post-container { 
+    flex: 3; display: flex; justify-content: center; align-items: center; padding: 20px; overflow: hidden;
+    cursor: zoom-in; background-color: var(--nekopixel-bg-dark); 
+}
+.modal-post-container.zoomed-in { cursor: zoom-out; }
+
+.modal-post-container img, .modal-post-container video {
+    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: transform 0.3s ease;
+}
+.modal-post-container .modal-text-only { 
+    font-size: 1.5rem; color: white; padding: 30px; text-align: center; 
+}
+.modal-sidebar { 
+    flex: 1; min-width: 350px; padding: 20px; background-color: var(--nekopixel-transparent-dark); 
+    color: var(--nekopixel-light-bg); border-left: 1px solid var(--nekopixel-border-accent);
+    display: flex; flex-direction: column; overflow-y: auto;
+}
+#modal-post-header {
+    display: flex; 
+    /* --- AJUSTADO: Alinear al centro verticalmente --- */
+    align-items: center; 
+    gap: 10px; 
+    border-bottom: 1px solid var(--nekopixel-border-accent);
+    padding-bottom: 15px; 
+    flex-shrink: 0; 
+    position: relative; /* Contexto para la fecha */
+    min-height: 40px; /* Altura mínima */
+}
+#modal-post-header .avatar-circle { 
+    border-width: 1px; box-shadow: none; width: 35px; height: 35px; font-size: 1rem; 
+}
+#modal-post-header strong { font-size: 1.1rem; color: var(--nekopixel-border-neon-pink); }
+#modal-post-header small { color: var(--nekopixel-text-medium); font-size: 0.8rem; margin-right: 50px;}
+
+#modal-post-body { 
+    padding: 15px 0; color: white; line-height: 1.6; flex-shrink: 0; 
+}
+#modal-post-body a { color: var(--nekopixel-border-neon-blue); word-break: break-all; }
+
+#modal-post-actions {
+    padding: 10px 0; border-top: 1px solid var(--nekopixel-border-accent); border-bottom: 1px solid var(--nekopixel-border-accent);
+    display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0;
+}
+#modal-post-actions .action-btn { color: var(--nekopixel-text-medium); border-color: var(--nekopixel-border-accent); }
+#modal-post-actions .action-btn:hover { color: var(--nekopixel-border-neon-blue); border-color: var(--nekopixel-border-neon-blue); }
+
+#modal-post-comments { 
+    flex-grow: 1; /* Ocupa el espacio restante */
+    padding-top: 15px; 
+    display: flex; flex-direction: column; /* Para scroll y form abajo */
+    min-height: 0; /* Necesario para flex-grow en algunos navegadores */
+}
+#modal-post-comments h3 { 
+    color: var(--nekopixel-border-neon-pink); margin-top: 0; padding-bottom: 10px; 
+    border-bottom: 1px solid var(--nekopixel-border-accent); font-size: 1.2rem; 
+    flex-shrink: 0; /* Título no se encoge */
+}
+#modal-comments-list { 
+    flex-grow: 1; overflow-y: auto; /* Scroll solo para la lista */ 
+    margin-bottom: 15px; 
+    padding-right: 5px; /* Espacio para scrollbar */
+} 
+#modal-post-comments .comment { 
+    border-bottom: 1px solid var(--nekopixel-border-accent); 
+    padding: 10px 0; 
+    background: none; 
+    border-left: none; 
+    border-right: none;
+    border-top: none; 
+    margin-top: 0; 
+    border-radius: 0; 
+    line-height: 1.4; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    /* --- AJUSTADO: Alinear botones al CENTRO --- */
+    align-items: center;
+}
+#modal-post-comments .comment > div:first-child { flex-grow: 1; margin-right: 15px; } 
+#modal-post-comments .comment .comment-actions { 
+      flex-shrink: 0; display: flex; gap: 8px; margin-left: auto; 
+}
+#modal-post-comments .comment strong { margin-right: 5px; display: inline; color: var(--nekopixel-border-neon-blue); } 
+#modal-post-comments .comment small { color: var(--nekopixel-text-medium); font-size: 0.8rem; display: block; margin-top: 5px; }
+
+#modalCommentForm { /* Formulario al final del sidebar */
+    display: flex; margin-top: auto; /* Empuja al final */ 
+    gap: 10px; flex-shrink: 0; padding-top: 15px; 
+    border-top: 1px solid var(--nekopixel-border-accent); 
+}
+#modalCommentForm input { 
+    flex-grow: 1; background: var(--nekopixel-input-dark); border-radius: 20px; padding: 10px 15px; 
+}
+#modalCommentForm button { 
+    border-radius: 20px; padding: 0 15px; flex-shrink: 0; 
+    /* Hereda .button .button-primary */
 }
 
-.join-btn:hover {
-    background-color: #218838; /* Verde más oscuro al pasar el mouse */
-}
 
-* Estilos para los botones de administración */
-.post-actions-admin {
-    display: flex;
-    gap: 10px;
+/* ==========================================================================
+   7. Media Queries (Responsividad - Específicos Comunidad)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    main.community-page { padding: 15px; gap: 15px; }
+    .sidebar-left, .sidebar-right { width: 220px; top: 75px; max-height: calc(100vh - 110px); }
 }
+@media (max-width: 768px) {
+    .community-banner-container { height: 150px; } 
+    .community-header { flex-direction: column; gap: 15px; margin-top: -40px; padding: 15px; }
+    .community-header h1 { font-size: 1.6rem; text-align: center;}
+    .join-btn, .leave-btn, .community-settings-btn { width: 100%; }
 
-.edit-btn {
-    padding: 5px 10px;
-    background-color: #ffc107; /* Amarillo para edición */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 12px;
-}
-
-.edit-btn:hover {
-    background-color: #e0a800; /* Amarillo más oscuro */
-}
-
-.delete-btn {
-    padding: 5px 10px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
+    main.community-page { flex-direction: column; padding: 15px; }
+    .sidebar-left, .sidebar-right, section.publicaciones {
+        width: 100%; position: static; max-height: none; overflow-y: visible; margin-bottom: 15px;
+    }
+     section.publicaciones { padding: 0; } 
+     .post-actions-admin { position: static; margin-top: 10px; justify-content: flex-end; } 
 }

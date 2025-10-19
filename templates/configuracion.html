@@ -4,76 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración - NekoPixel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='configuracion.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200..900;1,200..900&family=Tiny5&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Tiny5&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='configuracion.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="window.location.href='/'">NEKOPIXEL</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Buscar...">
-        </div>
-        <div class="user-profile" onclick="toggleDropdown()">
-            <img src="{{ url_for('serve_profile_pic', username=session['username']) }}" alt="Foto de perfil">
-            <div id="dropdown-content" class="dropdown-content">
-                <a href="{{ url_for('perfil') }}">Mi Perfil</a>
-                <a href="{{ url_for('configuracion') }}">Configuración</a>
-                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
-            </div>
-        </div>
-    </header>
+         <a href="{{ url_for('index') }}" class="logo">NEKOPIXEL</a>
+         <div class="search-bar">
+             <input type="text" placeholder="Buscar...">
+         </div>
+         <div class="user-profile" onclick="toggleDropdown()">
+             <div class="avatar-circle avatar-color-{{ (session['username']|length % 6) + 1 if 'username' in session else '1' }}">
+                 <img src="{{ url_for('serve_profile_pic', username=session.get('username')) }}" 
+                      alt="{{ session.get('username', 'Invitado') }}" 
+                      onerror="this.style.display='none'; this.parentElement.setAttribute('data-letter', '{{ (session.get('username', 'N')[0])|upper }}');">
+             </div>
+             <div id="dropdown-content" class="dropdown-content">
+                 {% if 'username' in session %}
+                     <a href="{{ url_for('perfil') }}"><i class="fas fa-user-circle"></i> Mi Perfil</a>
+                     <a href="{{ url_for('configuracion') }}"><i class="fas fa-cog"></i> Configuración</a>
+                     <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                 {% else %}
+                     {% endif %}
+             </div>
+         </div>
+     </header>
 
-    <main class="configuracion">
-        <div class="perfil-contenedor">
-            <div class="foto-perfil">
-                <img src="{{ url_for('serve_profile_pic', username=user.username) }}" alt="Foto de perfil">
-            </div>
-            <h2>Configuración</h2>
-            <form action="{{ url_for('update_config') }}" method="POST">
-                <div class="form-group">
-                    <label for="username">Nombre de usuario:</label>
-                    <input type="text" id="username" name="username" value="{{ user.username }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="email">Correo electrónico:</label>
-                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Nueva contraseña:</label>
-                    <input type="password" id="password" name="password">
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirmar nueva contraseña:</label>
-                    <input type="password" id="confirm-password" name="confirm-password">
-                </div>
-                <button type="submit" class="guardar-cambios">Guardar Cambios</button>
-            </form>
-        </div>
-    </main>
+    <main class="configuracion-page">
+        
+        <a href="{{ url_for('perfil') }}" class="back-to-profile-link">
+            <i class="fas fa-arrow-left"></i> Volver a Mi Perfil
+        </a>
+
+        <h1 class="configuracion-title"><i class="fas fa-tools"></i> Configuración de la Cuenta</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="settings-sections">
+            <section class="settings-section">
+                <h3><i class="fas fa-user-cog"></i> Cuenta</h3>
+                <form action="{{ url_for('update_config') }}" method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label for="username">Nombre de usuario:</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" required minlength="3" maxlength="20"> 
+                        <small style="color: var(--nekopixel-text-medium); font-size: 0.8rem;">(Entre 3 y 20 caracteres)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo electrónico:</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <button type="submit" name="action" value="update_account" class="guardar-cambios button button-primary">Guardar Cambios de Cuenta</button>
+                </form> 
+            </section>
+
+             <section class="settings-section">
+                 <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
+                 <form action="{{ url_for('update_config') }}" method="POST" class="settings-form"> 
+                    <div class="form-group">
+                        <label for="password">Nueva contraseña:</label>
+                        <input type="password" id="password" name="password" placeholder="Dejar en blanco para no cambiar" minlength="6">
+                         <small style="color: var(--nekopixel-text-medium); font-size: 0.8rem;">(Mínimo 6 caracteres)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirmar nueva contraseña:</label>
+                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Repite la nueva contraseña">
+                    </div>
+                    <button type="submit" name="action" value="update_password" class="guardar-cambios button button-primary">Actualizar Contraseña</button>
+                 </form>
+             </section>
+
+             <section class="settings-section">
+                 <h3><i class="fas fa-paint-brush"></i> Apariencia</h3>
+                 <form class="settings-form"> 
+                     <div class="form-group">
+                         <label for="theme">Tema:</label>
+                         <select id="theme" name="theme">
+                             <option value="dark" selected>Oscuro Neón (Predeterminado)</option>
+                             <option value="light" disabled>Claro (Próximamente)</option>
+                         </select>
+                     </div>
+                     <div class="form-group">
+                          <label>Pilares Laterales:</label>
+                          <div class="checkbox-group">
+                              <input type="checkbox" id="show_pillars" name="show_pillars" checked>
+                              <label for="show_pillars">Mostrar en escritorio (si la pantalla es ancha)</label>
+                          </div>
+                     </div>
+                     </form>
+             </section>
+             
+             <section class="settings-section">
+                 <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+                 <form class="settings-form">
+                     <p style="color: var(--nekopixel-text-medium);">Configura cómo quieres recibir notificaciones (Próximamente).</p>
+                     <div class="form-group">
+                          <div class="checkbox-group">
+                              <input type="checkbox" id="notify_likes" name="notify_likes" checked disabled>
+                              <label for="notify_likes">Notificarme cuando reciba un 'Like'</label>
+                          </div>
+                          <div class="checkbox-group">
+                               <input type="checkbox" id="notify_comments" name="notify_comments" checked disabled>
+                               <label for="notify_comments">Notificarme cuando reciba un comentario</label>
+                           </div>
+                           <div class="checkbox-group">
+                               <input type="checkbox" id="notify_messages" name="notify_messages" checked disabled>
+                               <label for="notify_messages">Notificarme cuando reciba un mensaje directo</label>
+                           </div>
+                     </div>
+                      </form>
+             </section>
+
+        </div> </main>
 
     <footer>
-        <p>© 2023 NekoPixel. Todos los derechos reservados.</p>
+        <p>&copy; 2024 NekoPixel. Todos los derechos reservados.</p>
+         <a href="{{ url_for('index') }}" class="footer-icon"><i class="fas fa-home"></i></a>
+         <a href="{{ url_for('explore') }}" class="footer-icon"><i class="fas fa-compass"></i></a>
+         <a href="#" onclick="togglePopup('postPopup')" class="footer-icon"><i class="fas fa-plus-square"></i></a>
+         <a href="{{ url_for('notifications') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-bell"></i></a>
+         <a href="{{ url_for('perfil') if 'username' in session else url_for('login') }}" class="footer-icon"><i class="fas fa-user"></i></a> 
     </footer>
 
     <script>
+        // Dropdown del header
         function toggleDropdown() {
             var dropdownContent = document.getElementById("dropdown-content");
-            dropdownContent.classList.toggle("show");
+            dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
         }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.user-profile img')) {
+        window.addEventListener('click', function(event) {
+            if (!event.target.closest('.user-profile')) { 
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+                     dropdowns[i].style.display = "none";
                 }
             }
+            // Cierre global popups (si los usas aquí)
+            /*
+            if (event.target.classList.contains('popup')) {
+                 closePopup(event.target.id);
+            }
+            */
+        });
+        
+        // Funciones togglePopup/closePopup (si usas popups en esta página)
+        function togglePopup(popupId) {
+             var popup = document.getElementById(popupId);
+             if (popup) {
+                 popup.classList.toggle("active");
+                 document.body.style.overflow = popup.classList.contains('active') ? 'hidden' : 'auto';
+             }
+        }
+         function closePopup(popupId) {
+             var popup = document.getElementById(popupId);
+             if(popup && popup.classList.contains('active')) {
+                 popup.classList.remove('active');
+                 if (!document.querySelector('.popup.active')) { document.body.style.overflow = 'auto'; }
+             }
         }
     </script>
 </body>
