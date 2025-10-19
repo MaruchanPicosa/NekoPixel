@@ -76,7 +76,7 @@
 
             <div class="profile-details-grid">
                 <section class="profile-card-section profile-stats-card">
-                    <h3><i class="fas fa-chart-line"></i> Estadísticas</h3>
+                    <h3><i class="fas fa-chart-line" style="color:rgb(61, 153, 78);" ></i> Estadísticas</h3>
                     <ul class="profile-stats-list">
                         <li><strong>Miembro desde:</strong> <span>{{ user.created_at.strftime('%B %Y') if user.created_at else 'N/A' }}</span></li>
                         <li><strong>Publicaciones:</strong> <span>{{ total_posts }}</span></li>
@@ -86,7 +86,7 @@
                 </section>
 
                 <section class="profile-card-section communities-section">
-                    <h2><i class="fas fa-crown"></i> Comunidades Creados</h2>
+                    <h2><i class="fas fa-crown" style="color:darkgoldenrod;"></i> Comunidades Creados</h2>
                     {% if created_communities %}
                         <ul class="communities-list">
                             {% for community in created_communities %}
@@ -108,7 +108,7 @@
                 </section>
                 
                 <section class="profile-card-section communities-section">
-                     <h2><i class="fas fa-users"></i> Comunidades Unidas</h2>
+                     <h2><i class="fas fa-users" style="color: cadetblue;"></i> Comunidades Unidas</h2>
                     {% if joined_communities %}
                          <ul class="communities-list">
                             {% for community in joined_communities %}
